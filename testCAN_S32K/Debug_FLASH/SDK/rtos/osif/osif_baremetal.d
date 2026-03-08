@@ -1,12 +1,12 @@
 SDK/rtos/osif/osif_baremetal.o: ../SDK/rtos/osif/osif_baremetal.c \
  ../SDK/rtos/osif/osif.h \
- D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/status.h \
- D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/device_registers.h \
- D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/common/s32_core_cm4.h \
- D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/S32K144/include/S32K144.h \
- D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/S32K144/include/S32K144_features.h \
- D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/devassert.h \
- D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/devassert.h \
+ C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/status.h \
+ C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/device_registers.h \
+ C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/common/s32_core_cm4.h \
+ C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/S32K144/include/S32K144.h \
+ C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/S32K144/include/S32K144_features.h \
+ C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/devassert.h \
+ C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/devassert.h \
  ../SDK/platform/drivers/inc/interrupt_manager.h \
  D:/NXP/S32DS.3.5/S32DS/software/S32SDK_S32K1XX_RTM_4.0.1/platform/drivers/inc/clock_manager.h \
  D:/NXP/S32DS.3.5/S32DS/software/S32SDK_S32K1XX_RTM_4.0.1/platform/drivers/inc/clock.h \
@@ -14,19 +14,19 @@ SDK/rtos/osif/osif_baremetal.o: ../SDK/rtos/osif/osif_baremetal.c \
 
 ../SDK/rtos/osif/osif.h:
 
-D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/status.h:
+C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/status.h:
 
-D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/device_registers.h:
+C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/device_registers.h:
 
-D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/common/s32_core_cm4.h:
+C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/common/s32_core_cm4.h:
 
-D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/S32K144/include/S32K144.h:
+C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/S32K144/include/S32K144.h:
 
-D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/S32K144/include/S32K144_features.h:
+C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/S32K144/include/S32K144_features.h:
 
-D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/devassert.h:
+C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/devassert.h:
 
-D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/devassert.h:
+C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/devassert.h:
 
 ../SDK/platform/drivers/inc/interrupt_manager.h:
 

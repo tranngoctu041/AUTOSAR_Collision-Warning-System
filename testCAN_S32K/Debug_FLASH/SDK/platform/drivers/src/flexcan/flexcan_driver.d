@@ -2,13 +2,13 @@ SDK/platform/drivers/src/flexcan/flexcan_driver.o: \
  ../SDK/platform/drivers/src/flexcan/flexcan_driver.c \
  ../SDK/platform/drivers/src/flexcan/flexcan_hw_access.h \
  ../SDK/platform/drivers/inc/flexcan_driver.h \
- D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/device_registers.h \
- D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/common/s32_core_cm4.h \
- D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/S32K144/include/S32K144.h \
- D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/S32K144/include/S32K144_features.h \
- D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/devassert.h \
+ C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/device_registers.h \
+ C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/common/s32_core_cm4.h \
+ C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/S32K144/include/S32K144.h \
+ C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/S32K144/include/S32K144_features.h \
+ C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/devassert.h \
  ../SDK/rtos/osif/osif.h \
- D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/status.h \
+ C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/status.h \
  ../SDK/platform/drivers/inc/edma_driver.h \
  ../SDK/platform/drivers/src/flexcan/flexcan_irq.h \
  ../SDK/platform/drivers/inc/interrupt_manager.h \
@@ -20,19 +20,19 @@ SDK/platform/drivers/src/flexcan/flexcan_driver.o: \
 
 ../SDK/platform/drivers/inc/flexcan_driver.h:
 
-D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/device_registers.h:
+C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/device_registers.h:
 
-D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/common/s32_core_cm4.h:
+C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/common/s32_core_cm4.h:
 
-D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/S32K144/include/S32K144.h:
+C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/S32K144/include/S32K144.h:
 
-D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/S32K144/include/S32K144_features.h:
+C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/S32K144/include/S32K144_features.h:
 
-D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/devassert.h:
+C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/devassert.h:
 
 ../SDK/rtos/osif/osif.h:
 
-D:/workspaceS32DS.3.5/adbc/SDK/platform/devices/status.h:
+C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/SDK/platform/devices/status.h:
 
 ../SDK/platform/drivers/inc/edma_driver.h:
 

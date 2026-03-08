@@ -32,23 +32,23 @@ endif
 
 # Add inputs and outputs from these tool invocations to the build variables 
 SECONDARY_SIZE += \
-adbc.siz \
+testCAN_S32K.siz \
 
 
 # All Target
-all: adbc.elf secondary-outputs
+all: testCAN_S32K.elf secondary-outputs
 
 # Tool invocations
-adbc.elf: $(OBJS) D:/workspaceS32DS.3.5/adbc/Project_Settings/Linker_Files/S32K144_64_flash.ld $(USER_OBJS)
+testCAN_S32K.elf: $(OBJS) C:/Users/Admin/Desktop/DATN/DATN/testCAN_S32K/Project_Settings/Linker_Files/S32K144_64_flash.ld $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Standard S32DS C Linker'
-	arm-none-eabi-gcc -o "adbc.elf" "@adbc.args"  $(USER_OBJS) $(LIBS)
+	arm-none-eabi-gcc -o "testCAN_S32K.elf" "@testCAN_S32K.args"  $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
-adbc.siz: adbc.elf
+testCAN_S32K.siz: testCAN_S32K.elf
 	@echo 'Invoking: Standard S32DS Print Size'
-	arm-none-eabi-size --format=berkeley adbc.elf
+	arm-none-eabi-size --format=berkeley testCAN_S32K.elf
 	@echo 'Finished building: $@'
 	@echo ' '
 

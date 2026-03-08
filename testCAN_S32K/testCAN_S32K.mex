@@ -278,7 +278,7 @@
                <options/>
                <dependencies/>
                <instances>
-                  <instance name="flexcan_config_1" uuid="0b94a05d-83cc-45d8-ba63-8d698855a296" type="flexcan_config" type_id="flexcan" mode="general" peripheral="CAN0" enabled="true" comment="" custom_name_enabled="false" editing_lock="false">
+                  <instance name="flexcan_config_1" uuid="f9231505-ec2c-4292-ab45-78f165d39386" type="flexcan_config" type_id="flexcan" mode="general" peripheral="CAN0" enabled="true" comment="" custom_name_enabled="false" editing_lock="false">
                      <config_set name="flexcan">
                         <struct name="flexcanCfg">
                            <setting name="name" value="flexcanInitConfig0"/>
@@ -307,10 +307,10 @@
                         <setting name="flexcan_state_name" value="flexcanState0"/>
                      </config_set>
                   </instance>
-                  <instance name="osif_1" uuid="b936dede-fec1-43c9-afef-b8098af7da3b" type="osif" type_id="osif" mode="general" enabled="true" comment="" custom_name_enabled="false" editing_lock="false">
+                  <instance name="osif_1" uuid="220cea0b-592d-4abc-b073-a6c9615279d9" type="osif" type_id="osif" mode="general" enabled="true" comment="" custom_name_enabled="false" editing_lock="false">
                      <config_set name="osif"/>
                   </instance>
-                  <instance name="edma_config_1" uuid="2a837fa4-9849-41a5-b5ed-b725e8e75b43" type="edma_config" type_id="edma" mode="general" peripheral="EDMA" enabled="true" comment="" custom_name_enabled="false" editing_lock="false">
+                  <instance name="edma_config_1" uuid="7adf761e-ecd8-4599-9999-4b54e5302c94" type="edma_config" type_id="edma" mode="general" peripheral="EDMA" enabled="true" comment="" custom_name_enabled="false" editing_lock="false">
                      <config_set name="edma_driver" quick_selection="edma_default">
                         <struct name="settings_edmaUserCfg">
                            <setting name="userStateStruct" value="dmaController_State"/>
