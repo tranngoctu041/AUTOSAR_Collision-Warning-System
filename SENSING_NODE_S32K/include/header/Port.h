@@ -5,7 +5,6 @@
 #define PORT_PIN_IN  0x00u
 #define PORT_PIN_OUT 0x01u
 
-/* Dùng Index của Port cho an toàn, không dùng địa chỉ Base nữa */
 #define PORT_A 0
 #define PORT_B 1
 #define PORT_C 2
@@ -25,7 +24,6 @@ typedef struct {
     uint8 NumOfPins;                   /* Tổng số chân trong mảng */
 } Port_ConfigType;
 
-/* Khai báo biến cấu hình để main.c có thể gọi: Port_Init(&Port_Config); */
 extern const Port_ConfigType Port_Config;
 
 /* Hàm khởi tạo toàn bộ chân dựa trên cấu hình truyền vào */

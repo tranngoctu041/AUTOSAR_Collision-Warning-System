@@ -1,36 +1,26 @@
 #include "Mcu.h"
+#include "S32K144.h"
 
-/* =========================================================================
-   ĐỊNH NGHĨA ĐỊA CHỈ THANH GHI BẰNG CON TRỎ (RAW ADDRESSES)
-   ========================================================================= */
-/* Thanh ghi Watchdog Timer */
-#define WDOG_CS      (*((volatile uint32*)0x40052000u))
-#define WDOG_CNT     (*((volatile uint32*)0x40052004u))
-#define WDOG_TOVAL   (*((volatile uint32*)0x40052008u))
+#define SCG  ((SCG_Type *)IP_SCG_BASE)
+#define WDOG ((WDOG_Type *)IP_WDOG_BASE)
 
-/* Các thanh ghi điều khiển Dao động nội (FIRC) */
-#define SCG_FIRCCSR  (*((volatile uint32*)0x40064300u))
-#define SCG_RCCR     (*((volatile uint32*)0x40064014u))
+void Mcu_Init(const Mcu_ConfigType* ConfigPtr) {
+    if (ConfigPtr == NULL_PTR) return; // Bảo vệ con trỏ NULL
 
-/* =========================================================================
-   THỰC THI CÁC HÀM
-   ========================================================================= */
-
-void Mcu_Init(void) {
     /* Tắt Watchdog */
-    WDOG_CNT   = 0xD928C520u; 
-    WDOG_TOVAL = 0x0000FFFFu; 
-    WDOG_CS    = 0x00002100u; 
+    WDOG->CNT   = 0xD928C520u; 
+    WDOG->TOVAL = 0x0000FFFFu; 
+    WDOG->CS    = 0x00002100u; 
 }
 
 void Mcu_InitClock(void) {
     /* 1. Bật dao động nội FIRC (Fast Internal RC - 48MHz)
      * Set bit 0 (FIRCEN) = 1
      */
-    SCG_FIRCCSR |= (1 << 0);
+    SCG->FIRCCSR |= (1 << 0);
 
     /* 2. Chờ cho đến khi cờ FIRCVLD (Bit 24) lên 1 (FIRC đã ổn định) */
-    while (!(SCG_FIRCCSR & (1 << 24))) {
+    while (!(SCG->FIRCCSR & (1 << 24))) {
         /* Chờ trong nội bộ chip, chắc chắn 100% sẽ qua được vòng lặp này */
     }
 }
@@ -43,8 +33,8 @@ void Mcu_DistributePllClock(void) {
     /* 3. Phân phối FIRC làm nguồn xung nhịp chính cho toàn chip
      * Xóa nguồn cũ (Bit 24-27)
      */
-    SCG_RCCR &= ~(0x0F000000u);
+    SCG->RCCR &= ~(0x0F000000u);
     
     /* Ghi giá trị 3 (0011 nhị phân) vào Bit 24-27 để chọn FIRC */
-    SCG_RCCR |= (3 << 24);
+    SCG->RCCR |= (3 << 24);
 }

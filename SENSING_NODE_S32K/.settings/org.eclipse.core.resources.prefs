@@ -1,0 +1,10 @@
+eclipse.preferences.version=1
+encoding//include/header/Adc.h=UTF-8
+encoding//include/header/Dio.h=UTF-8
+encoding//include/header/Mcu.h=UTF-8
+encoding//include/header/Port.h=UTF-8
+encoding//src/Adc.c=UTF-8
+encoding//src/Dio.c=UTF-8
+encoding//src/Mcu.c=UTF-8
+encoding//src/Port.c=UTF-8
+encoding//src/main.c=UTF-8

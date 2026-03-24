@@ -22,9 +22,9 @@ int main(void) {
     while(1) {
         /* Nháy LED Đỏ */
         Dio_WriteChannel(DIO_CHANNEL_LED_RED, STD_LOW);   /* Bật */
-        delay(1000000);
+        delay(2000000);
         Dio_WriteChannel(DIO_CHANNEL_LED_RED, STD_HIGH);  /* Tắt */
-        delay(1000000);
+        delay(2000000);
         /* Nháy LED Xanh lá */
         //Dio_WriteChannel(DIO_CHANNEL_LED_GREEN, STD_LOW); /* Bật */
         //delay(500000);

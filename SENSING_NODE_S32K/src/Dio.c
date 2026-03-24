@@ -2,11 +2,11 @@
 #include "S32K144.h"
 
 static GPIO_Type * const Dio_GpioBasePtrs[] = {
-    (GPIO_Type *)0x400FF000u, /* Port A */
-    (GPIO_Type *)0x400FF040u, /* Port B */
-    (GPIO_Type *)0x400FF080u, /* Port C */
-    (GPIO_Type *)0x400FF0C0u, /* Port D */
-    (GPIO_Type *)0x400FF100u  /* Port E */
+    (GPIO_Type *)IP_PTA_BASE, /* Port A */
+    (GPIO_Type *)IP_PTB_BASE, /* Port B */
+    (GPIO_Type *)IP_PTC_BASE, /* Port C */
+    (GPIO_Type *)IP_PTD_BASE, /* Port D */
+    (GPIO_Type *)IP_PTE_BASE  /* Port E */
 };
 
 /* Hàm ghi write */
