@@ -7,9 +7,12 @@
 #define PCC_PORTA_INDEX 73
 
 const Port_PinConfigType Port_PinConfigList[] = {
-    {PORT_D, 15, 1, PORT_PIN_OUT},
-    {PORT_D, 16, 1, PORT_PIN_OUT},
-    {PORT_D, 0,  1, PORT_PIN_OUT}
+    /* Chân Cảm biến mưa MH-RD (PTA1) -> MUX = 0 (Analog), Direction không quan trọng */
+    {PORT_A, 1,  0, PORT_PIN_IN},
+    /* Chân truyền dữ liệu lên máy tính (LPUART1_TX) -> PTC7 có MUX = 2 */
+    {PORT_C, 7,  2, PORT_PIN_OUT},
+    /* Chân đọc LiDAR TF-Luna (LPUART0_RX) <--- */
+	{PORT_C, 2,  4, PORT_PIN_IN}
 };
 
 /* Đóng gói mảng trên vào biến cấu hình tổng để giao tiếp với hàm Init */

@@ -1,39 +1,33 @@
+#include "S32K144.h"
+#include "Mcu.h"
 #include "Port.h"
-#include "Dio.h"
-
-/* Bổ sung đủ 3 Channel ID */
-#define DIO_CHANNEL_LED_BLUE  96  /* PTD0:  (3 * 32) + 0  */
-#define DIO_CHANNEL_LED_RED   111 /* PTD15: (3 * 32) + 15 */
-#define DIO_CHANNEL_LED_GREEN 112 /* PTD16: (3 * 32) + 16 */
-
-void delay(volatile uint32 count) {
-    while(count--) {}
-}
+#include "Adc.h"
+#include "Uart.h" /* <--- Chỉ cần gọi Include này */
 
 int main(void) {
-    /* Khởi tạo chức năng chân và chiều Output */
+    /* 1. Khởi tạo hệ thống cứng */
+    Mcu_ConfigType mcuCfg = {0};
+    Mcu_Init(&mcuCfg);
+    Mcu_InitClock();
+    Mcu_DistributePllClock();
     Port_Init(&Port_Config);
+    
+    /* 2. Khởi tạo Ngoại vi bằng Driver đã đóng gói */
+    Uart_Init(); 
 
-    /* TẮT GỌN GÀNG CẢ 3 LED BAN ĐẦU (Kéo lên mức HIGH) */
-    Dio_WriteChannel(DIO_CHANNEL_LED_RED, STD_HIGH);
-    Dio_WriteChannel(DIO_CHANNEL_LED_GREEN, STD_HIGH);
-    Dio_WriteChannel(DIO_CHANNEL_LED_BLUE, STD_HIGH);
+    Uart_SendString("\r\n=================================\r\n");
+    Uart_SendString("    MODULE UART DA DUOC DONG GOI \r\n");
+    Uart_SendString("=================================\r\n");
 
-    while(1) {
-        /* Nháy LED Đỏ */
-        Dio_WriteChannel(DIO_CHANNEL_LED_RED, STD_LOW);   /* Bật */
-        delay(2000000);
-        Dio_WriteChannel(DIO_CHANNEL_LED_RED, STD_HIGH);  /* Tắt */
-        delay(2000000);
-        /* Nháy LED Xanh lá */
-        //Dio_WriteChannel(DIO_CHANNEL_LED_GREEN, STD_LOW); /* Bật */
-        //delay(500000);
-        //Dio_WriteChannel(DIO_CHANNEL_LED_GREEN, STD_HIGH);/* Tắt */
+    uint8 received_byte;
 
-        /* Nháy LED Xanh dương */
-        //Dio_WriteChannel(DIO_CHANNEL_LED_BLUE, STD_LOW);  /* Bật */
-        //delay(500000);
-        //Dio_WriteChannel(DIO_CHANNEL_LED_BLUE, STD_HIGH); /* Tắt */
+    while (1) {
+        Uart_ClearOverrun_LPUART0();
+
+        /* Sử dụng hàm đọc Non-blocking siêu gọn */
+        if (Uart_ReadChar_LPUART0(&received_byte) == 1) {
+            Uart_SendHex(received_byte);
+        }
     }
     return 0;
 }

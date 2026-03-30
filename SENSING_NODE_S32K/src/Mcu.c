@@ -19,6 +19,8 @@ void Mcu_InitClock(void) {
      */
     SCG->FIRCCSR |= (1 << 0);
 
+    SCG->FIRCDIV |= (1 << 8);
+
     /* 2. Chờ cho đến khi cờ FIRCVLD (Bit 24) lên 1 (FIRC đã ổn định) */
     while (!(SCG->FIRCCSR & (1 << 24))) {
         /* Chờ trong nội bộ chip, chắc chắn 100% sẽ qua được vòng lặp này */
