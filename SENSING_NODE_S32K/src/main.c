@@ -1,59 +1,53 @@
 #include "S32K144.h"
-#include "Mcu.h"
+
+/* Các module MCAL */
 #include "Port.h"
+#include "Adc.h"
 #include "Uart.h"
+#include "Can.h"
 #include "Gpt.h"
+#include "Mcu.h"
 #include "Icu.h"
 
-#define PTD  ((GPIO_Type *)IP_PTD_BASE)
-#define PCC  ((PCC_Type *)IP_PCC_BASE)
+/* Các module ECU Abstraction & CDD */
+#include "IoHwAb_Sensors.h"
+#include "CDD_LiDAR_Radar.h"
+
+#include "Os.h"
 
 int main(void) {
-    /* 1. KHỞI TẠO XUNG NHỊP CƠ BẢN */
-    Mcu_ConfigType mcuCfg = {0};
-    Mcu_Init(&mcuCfg);
+    /* =========================================================
+     * BƯỚC 1: KHỞI TẠO TẦNG MCAL (Phần cứng lõi)
+     * ========================================================= */
+    /* Cấu hình các chân MUX (Siêu âm, Mưa, UART, CAN) */
+    Mcu_Init(NULL_PTR); 
     Mcu_InitClock();
     Mcu_DistributePllClock();
 
-    /* Bật Clock PORTC, PORTD trước khi gọi Port_Init */
-    PCC->PCCn[75] |= (1u << 30);
-    PCC->PCCn[76] |= (1u << 30);
-
-    /* 2. KHỞI TẠO TẤT CẢ MCAL DRIVERS */
-    Port_Init(&Port_Config);
-    Uart_Init();
-    Gpt_Init();
+    Port_Init(&Port_Config); 
+    Adc_Init(NULL_PTR);      /* Cấu hình ADC cho Mưa & Radar */
+    Uart_Init();             /* Cấu hình UART đọc LiDAR */
+    Can_Init();              /* Kích hoạt FlexCAN0 500kbps */
     Icu_Init();
 
-    Uart_SendString("\r\n=================================\r\n");
-    Uart_SendString("   ADAS SENSING NODE S32K144     \r\n");
-    Uart_SendString("=================================\r\n");
+    /* =========================================================
+     * BƯỚC 2: KHỞI TẠO TẦNG ECUAL & CDD (Giao tiếp Cảm biến)
+     * ========================================================= */
+    IoHwAb_Sensors_Init();
+    CDD_LiDAR_Radar_Init();
 
-    /* Cấu hình chiều Output cho chân Trigger (PTD16) */
-    PTD->PDDR |= (1u << 16);
-    PTD->PCOR = (1u << 16);  /* Kéo xuống mức THẤP để đảm bảo an toàn */
+    /* =========================================================
+     * BƯỚC 3: KÍCH HOẠT HỆ ĐIỀU HÀNH VÀ VÒNG LẶP CHÍNH
+     * ========================================================= */
+    /* Hàm Gpt_Init() sẽ bật ngắt LPIT0_Ch0 mỗi 1ms.
+       Từ lúc này, biến đếm thời gian của OS bắt đầu nhảy! */
+    Gpt_Init(); 
+    Os_Start(); 
 
-    while (1) {
-        /* BƯỚC 1: Bắn xung 10us siêu mượt nhờ phần cứng GPT */
-        PTD->PSOR = (1u << 16);
-        Gpt_Delay_us(10);
-        PTD->PCOR = (1u << 16);
-
-        /* BƯỚC 2: Đo xung Echo dội về bằng phần cứng ICU */
-        uint16 echo_time_us = Icu_MeasurePulseWidth_us();
-
-        /* BƯỚC 3: Quy đổi và In ra màn hình */
-        if (echo_time_us != 0xFFFF) {
-            float distance_cm = ((float)echo_time_us * 0.0343f) / 2.0f;
-            Uart_SendString("Khoang cach: ");
-            Uart_SendFloat(distance_cm);
-            Uart_SendString(" cm\r\n");
-        } else {
-            Uart_SendString("CBAO: Khong co vat can / Vuot tam do!\r\n");
-        }
-
-        /* BƯỚC 4: Nhịp thở cảm biến 100ms */
-        Gpt_Delay_ms(100);
+    while (1)
+    {
+    	CDD_LiDAR_Radar_Update();
+    	Os_Scheduler();
     }
 
     return 0;
