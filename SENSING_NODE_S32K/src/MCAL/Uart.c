@@ -2,7 +2,6 @@
 #include "S32K144.h"
 
 #define PCC ((PCC_Type *)IP_PCC_BASE)
-#define PCC_LPUART0_INDEX 106u
 #define LPUART0 ((LPUART_Type *)IP_LPUART0_BASE)
 
 void Uart_Init(void)

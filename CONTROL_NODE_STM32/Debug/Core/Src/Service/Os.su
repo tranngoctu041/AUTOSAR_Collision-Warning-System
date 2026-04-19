@@ -1,0 +1,5 @@
+../Drivers/CMSIS/Include/core_cm3.h:1639:22:__NVIC_SetPriority	16	static
+../Drivers/CMSIS/Include/core_cm3.h:1834:26:SysTick_Config	16	static
+../Core/Src/Service/Os.c:10:6:Os_Tick	4	static
+../Core/Src/Service/Os.c:15:6:Os_Start	8	static
+../Core/Src/Service/Os.c:23:6:Os_Scheduler	16	static

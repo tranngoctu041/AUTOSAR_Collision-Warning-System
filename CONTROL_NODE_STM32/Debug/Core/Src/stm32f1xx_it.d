@@ -23,7 +23,11 @@ Core/Src/stm32f1xx_it.o: ../Core/Src/stm32f1xx_it.c ../Core/Inc/main.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h \
- ../Core/Inc/stm32f1xx_it.h
+ ../Core/Inc/stm32f1xx_it.h \
+ C:/Users/Admin/Desktop/DATN/DATN/CONTROL_NODE_STM32/Core/Inc/header/Service/Os.h \
+ C:/Users/Admin/Desktop/DATN/DATN/CONTROL_NODE_STM32/Core/Inc/common/Std_Types.h \
+ C:/Users/Admin/Desktop/DATN/DATN/CONTROL_NODE_STM32/Core/Inc/common/Platform_Types.h \
+ C:/Users/Admin/Desktop/DATN/DATN/CONTROL_NODE_STM32/Core/Inc/common/Compiler.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:
 ../Core/Inc/stm32f1xx_hal_conf.h:
@@ -50,3 +54,7 @@ Core/Src/stm32f1xx_it.o: ../Core/Src/stm32f1xx_it.c ../Core/Inc/main.h \
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h:
 ../Core/Inc/stm32f1xx_it.h:
+C:/Users/Admin/Desktop/DATN/DATN/CONTROL_NODE_STM32/Core/Inc/header/Service/Os.h:
+C:/Users/Admin/Desktop/DATN/DATN/CONTROL_NODE_STM32/Core/Inc/common/Std_Types.h:
+C:/Users/Admin/Desktop/DATN/DATN/CONTROL_NODE_STM32/Core/Inc/common/Platform_Types.h:
+C:/Users/Admin/Desktop/DATN/DATN/CONTROL_NODE_STM32/Core/Inc/common/Compiler.h:

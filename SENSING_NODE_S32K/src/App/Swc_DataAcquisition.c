@@ -3,17 +3,18 @@
 
 void Swc_DataAcquisition_Task_30ms(void) {
     Rte_Msg100_FrontObstacle msg100;
-    float32 raw_radar_speed = 0.0f;
+    float32 raw_radar_fd = 0.0f;
     uint16 raw_lidar_dist = 0u;
     uint16 raw_front_ultra = 0u;
 
     Rte_Read_RpLidar_Distance(&raw_lidar_dist);
-    Rte_Read_RpRadar_Speed(&raw_radar_speed);
+    Rte_Read_RpRadar_Fd(&raw_radar_fd);
     Rte_Read_RpFrontUltra_Distance(&raw_front_ultra);
 
     msg100.FrontUltra_Distance_cm = raw_front_ultra;
     msg100.Lidar_Distance_cm = raw_lidar_dist;
-    msg100.Cdm324_Speed_scaled = (sint16)(raw_radar_speed * 100.0f);
+    /* Fd Hz -> scale x100 để gửi CAN */
+    msg100.Cdm324_Fd_scaled = (uint16)(raw_radar_fd * 100.0f);
 
     Rte_Write_PpMsg100_FrontObstacle(&msg100);
 }
@@ -45,7 +46,7 @@ void Swc_DataAcquisition_Task_100ms(void) {
     current_alpha = ((float32)raw_rain_adc / 4095.0f) * 0.8f + 0.1f;
 
     /* map adc biến trở sang tốc độ mô phỏng */
-    sim_speed_kmh = 20.0f + ((float32)raw_sim_speed_adc / 4095.0f) * 60.0f;
+    sim_speed_kmh = 10.0f + ((float32)raw_sim_speed_adc / 4095.0f) * 40.0f;
 
     msg102.Alpha_Scaled = (uint8)(current_alpha * 100.0f);
     msg102.SimSpeed_Scaled = (uint16)(sim_speed_kmh * 100.0f);

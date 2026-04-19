@@ -1,0 +1,4 @@
+../Core/Src/App/Swc_SensorFusion.c:17:14:Swc_IsValidDistance	16	static
+../Core/Src/App/Swc_SensorFusion.c:26:6:Swc_SensorFusion_Task_10ms	72	static
+../Core/Src/App/Swc_SensorFusion.c:145:16:Swc_SensorFusion_GetResults	24	static
+../Core/Src/App/Swc_SensorFusion.c:158:6:Swc_ControlNode_Task_10ms	8	static

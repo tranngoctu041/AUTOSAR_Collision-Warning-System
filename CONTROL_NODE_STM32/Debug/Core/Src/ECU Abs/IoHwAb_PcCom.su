@@ -1,0 +1,3 @@
+../Core/Src/ECU Abs/IoHwAb_PcCom.c:8:14:IoHwAb_PcCom_CalcChecksum	24	static
+../Core/Src/ECU Abs/IoHwAb_PcCom.c:24:6:IoHwAb_PcCom_Init	8	static
+../Core/Src/ECU Abs/IoHwAb_PcCom.c:29:16:IoHwAb_PcCom_SendHmiFrame	48	static

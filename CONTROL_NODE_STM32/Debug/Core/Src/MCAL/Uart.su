@@ -1,0 +1,6 @@
+../Core/Src/MCAL/Uart.c:4:6:Uart_Init	4	static
+../Core/Src/MCAL/Uart.c:16:6:Uart_SendChar	16	static
+../Core/Src/MCAL/Uart.c:22:6:Uart_SendString	16	static
+../Core/Src/MCAL/Uart.c:34:6:Uart_SendNumber	40	static
+../Core/Src/MCAL/Uart.c:64:6:Uart_SendFloat	32	static
+../Core/Src/MCAL/Uart.c:88:6:Uart_SendBuffer	24	static

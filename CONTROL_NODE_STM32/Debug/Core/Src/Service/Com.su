@@ -1,0 +1,2 @@
+../Core/Src/Service/Com.c:10:16:Com_RxIndication	16	static
+../Core/Src/Service/Com.c:28:16:Com_Receive	16	static

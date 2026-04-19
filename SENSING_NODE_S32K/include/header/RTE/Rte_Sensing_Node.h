@@ -5,7 +5,7 @@
 
 typedef struct {
     uint16 FrontUltra_Distance_cm;
-    sint16 Cdm324_Speed_scaled;
+    uint16 Cdm324_Fd_scaled;
     uint16 Lidar_Distance_cm;
 } Rte_Msg100_FrontObstacle;
 
@@ -27,7 +27,7 @@ void Rte_Update_Inputs_Task100ms(void);
 
 /* API để SWC đọc dữ liệu từ RTE */
 Std_ReturnType Rte_Read_RpLidar_Distance(uint16* data);
-Std_ReturnType Rte_Read_RpRadar_Speed(float32* data);
+Std_ReturnType Rte_Read_RpRadar_Fd(float32* data);
 Std_ReturnType Rte_Read_RpFrontUltra_Distance(uint16* data);
 Std_ReturnType Rte_Read_RpSideUltras_Distance(uint16* left_data, uint16* right_data);
 Std_ReturnType Rte_Read_RpRainSensor_AdcRaw(uint16* data);

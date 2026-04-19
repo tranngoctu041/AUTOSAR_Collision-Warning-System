@@ -1,0 +1,4 @@
+../Core/Src/MCAL/Mcu.c:4:6:Mcu_Init	16	static
+../Core/Src/MCAL/Mcu.c:11:6:Mcu_InitClock	4	static
+../Core/Src/MCAL/Mcu.c:33:19:Mcu_GetPllStatus	4	static
+../Core/Src/MCAL/Mcu.c:42:6:Mcu_DistributePllClock	8	static

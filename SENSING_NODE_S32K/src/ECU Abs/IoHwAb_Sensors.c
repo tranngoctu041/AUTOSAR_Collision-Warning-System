@@ -7,11 +7,13 @@
 #define TRIG_LEFT  109u /* PTD13 */
 #define TRIG_RIGHT 110u /* PTD14 */
 
+/* hàm tạo trễ khoảng 10us để kích xung siêu âm */
 static void delay_10us(void) {
     for (volatile uint32 i = 0u; i < 120u; i++);
 }
 
 void IoHwAb_Sensors_Init(void) {
+    /* tắt hết chân kích xung siêu âm lúc khởi động */
     Dio_WriteChannel(TRIG_FRONT, STD_LOW);
     Dio_WriteChannel(TRIG_LEFT, STD_LOW);
     Dio_WriteChannel(TRIG_RIGHT, STD_LOW);
@@ -24,7 +26,8 @@ void IoHwAb_Read_FrontUltra(uint16* dist_cm) {
     delay_10us();
     Dio_WriteChannel(TRIG_FRONT, STD_LOW);
 
-    echo = Icu_MeasurePulseWidth_us(0u); /* FTM0_CH0 */
+    /* đo độ rộng xung dội về bằng FTM0_CH0 */
+    echo = Icu_MeasurePulseWidth_us(0u);
     *dist_cm = (echo == 0xFFFFu) ? 0xFFFFu : (echo / 58u);
 }
 
@@ -34,6 +37,7 @@ void IoHwAb_Read_SideUltras(uint16* left_cm, uint16* right_cm) {
     static uint16 last_right = 0xFFFFu;
     uint16 echo;
 
+    /* đọc luân phiên trái/phải để tránh nhiễu sóng vào nhau */
     if (toggle == 0u) {
         /* đọc cảm biến bên trái */
         Dio_WriteChannel(TRIG_LEFT, STD_HIGH);
@@ -54,17 +58,20 @@ void IoHwAb_Read_SideUltras(uint16* left_cm, uint16* right_cm) {
         toggle = 0u;
     }
 
+    /* trả về khoảng cách, cảm biến nào chưa tới lượt thì dùng giá trị cũ */
     *left_cm = last_left;
     *right_cm = last_right;
 }
 
 void IoHwAb_Read_Rain(uint16* adc_raw) {
+    /* đọc giá trị ADC0 kênh cảm biến mưa */
     Adc_StartGroupConversion(ADC_GROUP_RAIN);
     while (Adc_GetGroupStatus(ADC_GROUP_RAIN) == ADC_BUSY);
     Adc_ReadGroup(ADC_GROUP_RAIN, adc_raw);
 }
 
 void IoHwAb_Read_SimSpeedAdc(uint16* adc_raw) {
+    /* đọc giá trị ADC0 kênh cảm biến tốc độ mô phỏng */
     Adc_StartGroupConversion(ADC_GROUP_POT);
     while (Adc_GetGroupStatus(ADC_GROUP_POT) == ADC_BUSY);
     Adc_ReadGroup(ADC_GROUP_POT, adc_raw);

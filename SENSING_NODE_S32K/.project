@@ -23,4 +23,26 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>include/arm_math_lib/CommonTables.c</name>
+			<type>1</type>
+			<location>C:/Users/Admin/Desktop/CMSIS-DSP-main/Source/CommonTables/CommonTables.c</location>
+		</link>
+		<link>
+			<name>include/arm_math_lib/FastMathFunctions.c</name>
+			<type>1</type>
+			<location>C:/Users/Admin/Desktop/CMSIS-DSP-main/Source/FastMathFunctions/FastMathFunctions.c</location>
+		</link>
+		<link>
+			<name>include/arm_math_lib/StatisticsFunctions.c</name>
+			<type>1</type>
+			<location>C:/Users/Admin/Desktop/CMSIS-DSP-main/Source/StatisticsFunctions/StatisticsFunctions.c</location>
+		</link>
+		<link>
+			<name>include/arm_math_lib/TransformFunctions.c</name>
+			<type>1</type>
+			<location>C:/Users/Admin/Desktop/CMSIS-DSP-main/Source/TransformFunctions/TransformFunctions.c</location>
+		</link>
+	</linkedResources>
 </projectDescription>

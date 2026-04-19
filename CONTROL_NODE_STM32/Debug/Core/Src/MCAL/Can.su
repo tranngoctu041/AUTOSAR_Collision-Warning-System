@@ -1,0 +1,2 @@
+../Core/Src/MCAL/Can.c:4:6:Can_Init	4	static
+../Core/Src/MCAL/Can.c:34:16:Can_Read	40	static

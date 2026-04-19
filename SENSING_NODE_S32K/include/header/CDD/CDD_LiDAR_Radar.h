@@ -5,7 +5,7 @@
 
 typedef struct {
     uint16 Lidar_Distance_cm;
-    float32 Radar_Speed_mps;
+    float32 Radar_Fd_Hz;
     boolean Lidar_IsValid;
     boolean Radar_IsValid;
 } CDD_HighSpeedData;

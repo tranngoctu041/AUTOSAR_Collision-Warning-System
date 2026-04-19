@@ -3,12 +3,9 @@
 
 #define PCC ((PCC_Type *)IP_PCC_BASE)
 
-/* index của PORTA trong mảng PCC */
-#define PCC_PORTA_INDEX 73u
-
 const Port_PinConfigType Port_PinConfigList[] = {
     /* radar CDM324 */
-    {PORT_A, 0u, 0u, PORT_PIN_IN},
+    {PORT_E, 2u, 0u, PORT_PIN_IN},
 
     /* cảm biến mưa */
     {PORT_A, 1u, 0u, PORT_PIN_IN},

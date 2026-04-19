@@ -12,9 +12,9 @@ typedef uint8  Adc_StatusType;       /* trạng thái chuyển đổi */
 #define ADC_COMPLETED  ((Adc_StatusType)0x02u)
 
 /* các group ADC dùng trong hệ thống */
-#define ADC_GROUP_RADAR 0u  /* radar CDM324 */
-#define ADC_GROUP_RAIN  1u  /* cảm biến mưa */
-#define ADC_GROUP_POT   2u  /* biến trở mô phỏng vận tốc */
+#define ADC_GROUP_RADAR 0u  /* radar CDM324 - Dùng ADC1 */
+#define ADC_GROUP_RAIN  1u  /* cảm biến mưa - Dùng ADC0 */
+#define ADC_GROUP_POT   2u  /* biến trở vận tốc - Dùng ADC0 */
 
 #define ADC_GROUP_COUNT 3u
 

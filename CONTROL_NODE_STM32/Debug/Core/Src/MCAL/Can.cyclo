@@ -1,0 +1,2 @@
+../Core/Src/MCAL/Can.c:4:6:Can_Init	3
+../Core/Src/MCAL/Can.c:34:16:Can_Read	6

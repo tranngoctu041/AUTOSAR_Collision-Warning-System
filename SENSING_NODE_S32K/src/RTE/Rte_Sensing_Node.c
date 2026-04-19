@@ -8,7 +8,7 @@ static uint16  Rte_Buffer_FrontUltra  = 0xFFFFu;
 static uint16  Rte_Buffer_LeftUltra   = 0xFFFFu;
 static uint16  Rte_Buffer_RightUltra  = 0xFFFFu;
 static uint16  Rte_Buffer_LidarCm     = 0xFFFFu;
-static float32 Rte_Buffer_RadarSpeed  = 0.0f;
+static float32 Rte_Buffer_RadarFd  = 0.0f;
 static uint16  Rte_Buffer_RainAdc     = 0u;
 static uint16  Rte_Buffer_SimSpeedAdc = 0u;
 
@@ -22,7 +22,7 @@ void Rte_Update_Inputs_Task30ms(void) {
     }
 
     if (cddData.Radar_IsValid) {
-        Rte_Buffer_RadarSpeed = cddData.Radar_Speed_mps;
+        Rte_Buffer_RadarFd = cddData.Radar_Fd_Hz;
     }
 
     IoHwAb_Read_FrontUltra(&Rte_Buffer_FrontUltra);
@@ -42,8 +42,8 @@ Std_ReturnType Rte_Read_RpLidar_Distance(uint16* data) {
     return E_OK;
 }
 
-Std_ReturnType Rte_Read_RpRadar_Speed(float32* data) {
-    *data = Rte_Buffer_RadarSpeed;
+Std_ReturnType Rte_Read_RpRadar_Fd(float32* data) {
+    *data = Rte_Buffer_RadarFd;
     return E_OK;
 }
 
@@ -73,8 +73,8 @@ Std_ReturnType Rte_Write_PpMsg100_FrontObstacle(const Rte_Msg100_FrontObstacle* 
 
     can_payload[0] = (uint8)(data->FrontUltra_Distance_cm & 0xFFu);
     can_payload[1] = (uint8)((data->FrontUltra_Distance_cm >> 8) & 0xFFu);
-    can_payload[2] = (uint8)((uint16)data->Cdm324_Speed_scaled & 0xFFu);
-    can_payload[3] = (uint8)(((uint16)data->Cdm324_Speed_scaled >> 8) & 0xFFu);
+    can_payload[2] = (uint8)((uint16)data->Cdm324_Fd_scaled & 0xFFu);
+    can_payload[3] = (uint8)(((uint16)data->Cdm324_Fd_scaled >> 8) & 0xFFu);
     can_payload[4] = (uint8)(data->Lidar_Distance_cm & 0xFFu);
     can_payload[5] = (uint8)((data->Lidar_Distance_cm >> 8) & 0xFFu);
 
