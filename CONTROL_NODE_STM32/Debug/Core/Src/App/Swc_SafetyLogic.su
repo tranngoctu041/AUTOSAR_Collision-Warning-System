@@ -1,3 +1,9 @@
-../Core/Src/App/Swc_SafetyLogic.c:8:14:Swc_IsValidDistance	16	static
-../Core/Src/App/Swc_SafetyLogic.c:17:6:Swc_SafetyLogic_Task_10ms	32	static
-../Core/Src/App/Swc_SafetyLogic.c:75:16:Swc_SafetyLogic_GetResults	16	static
+../Core/Src/App/Swc_SafetyLogic.c:37:14:Swc_IsValidDistance	16	static
+../Core/Src/App/Swc_SafetyLogic.c:47:15:Swc_AbsDiff_U16	16	static
+../Core/Src/App/Swc_SafetyLogic.c:57:16:Swc_LimitSimSpeed	16	static
+../Core/Src/App/Swc_SafetyLogic.c:72:16:Swc_CalcBrakeDistance	32	static
+../Core/Src/App/Swc_SafetyLogic.c:85:16:Swc_SqrtApprox	24	static
+../Core/Src/App/Swc_SafetyLogic.c:121:16:Swc_CalcETTC	48	static
+../Core/Src/App/Swc_SafetyLogic.c:166:14:Swc_UpdateBsdSide	32	static
+../Core/Src/App/Swc_SafetyLogic.c:207:6:Swc_SafetyLogic_Task_10ms	48	static
+../Core/Src/App/Swc_SafetyLogic.c:307:16:Swc_SafetyLogic_GetResults	24	static

@@ -2,6 +2,9 @@
 #include "PduR.h"
 #include "Com.h"
 
+#define RTE_MAX_RX_PULL_PER_TASK     8u
+#define RTE_MAX_COM_READ_PER_TASK    8u
+
 static uint16 Rte_Buffer_FrontUltra = 0xFFFFu;
 static uint16 Rte_Buffer_Fd = 0u;
 static uint16 Rte_Buffer_Lidar = 0xFFFFu;
@@ -37,21 +40,23 @@ static void Rte_DecodeRxPdu(const Can_PduType* RxPdu)
         Rte_Buffer_SimSpeed = (float32)sim_speed_scaled / 100.0f;
         Rte_Buffer_Status = RxPdu->CanData[3];
     }
-    else {
-    }
+    else {}
 }
 
 void Rte_Update_Inputs_Task10ms(void)
 {
     Can_PduType RxPdu;
+    uint8 count;
 
-    /* kéo toàn bộ frame đang chờ từ CAN driver lên Com queue */
-    while (PduR_CanIfRxIndication() == E_OK) {
+    count = 0u;
+    while ((PduR_CanIfRxIndication() == E_OK) && (count < RTE_MAX_RX_PULL_PER_TASK)) {
+        count++;
     }
 
-    /* đọc hết queue Com và cập nhật buffer RTE */
-    while (Com_Receive(&RxPdu) == E_OK) {
+    count = 0u;
+    while ((Com_Receive(&RxPdu) == E_OK) && (count < RTE_MAX_COM_READ_PER_TASK)) {
         Rte_DecodeRxPdu(&RxPdu);
+        count++;
     }
 }
 

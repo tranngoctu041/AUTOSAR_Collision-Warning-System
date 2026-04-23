@@ -13,7 +13,7 @@ const Port_PinConfigType Port_PinConfigList[] = {
 
 const Port_ConfigType Port_Config = {
     Port_PinConfigList,
-    5u
+    4u
 };
 
 static GPIO_TypeDef * const Port_GpioBase[] = {

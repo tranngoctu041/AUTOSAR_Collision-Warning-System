@@ -23,5 +23,5 @@ Std_ReturnType CanIf_Transmit(uint16 TxPduId, const uint8* PduInfoPtr, uint8 Len
             return E_NOT_OK;
     }
 
-    return Can_Write(0u, mailbox, TxPduId, PduInfoPtr, Length);
+    return Can_Write(mailbox, TxPduId, PduInfoPtr, Length);
 }

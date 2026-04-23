@@ -1,1 +1,2 @@
-../Core/Src/App/Swc_HmiReporting.c:8:6:Swc_Hmi_Task_50ms	2
+../Core/Src/App/Swc_HmiReporting.c:8:15:Swc_Hmi_ScaleFloatToS16	4
+../Core/Src/App/Swc_HmiReporting.c:34:6:Swc_Hmi_Task_50ms	1

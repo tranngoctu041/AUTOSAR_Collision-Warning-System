@@ -48,13 +48,11 @@ void Can_Init(void) {
     while ((CAN0->MCR & (1u << 24)) != 0u) {}
 }
 
-Std_ReturnType Can_Write(uint8 Controller, uint8 Hth, uint32 CanId, const uint8* PduInfoPtr, uint8 Length)
+Std_ReturnType Can_Write(uint8 Hth, uint32 CanId, const uint8* PduInfoPtr, uint8 Length)
 {
     uint32 mb_index;
     uint32 word0 = 0u;
     uint32 word1 = 0u;
-
-    (void)Controller;
 
     if ((PduInfoPtr == NULL_PTR) || (Length > 8u)) {
         return E_NOT_OK;

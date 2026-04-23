@@ -37,7 +37,7 @@ void Swc_DataAcquisition_Task_100ms(void) {
     uint16 raw_rain_adc = 0u;
     uint16 raw_sim_speed_adc = 0u;
     float32 current_alpha = 0.0f;
-    float32 sim_speed_kmh = 0.0f;
+    float32 sim_speed_mps = 0.0f;
 
     Rte_Read_RpRainSensor_AdcRaw(&raw_rain_adc);
     Rte_Read_RpSimSpeedAdcRaw(&raw_sim_speed_adc);
@@ -46,10 +46,10 @@ void Swc_DataAcquisition_Task_100ms(void) {
     current_alpha = ((float32)raw_rain_adc / 4095.0f) * 0.8f + 0.1f;
 
     /* map adc biến trở sang tốc độ mô phỏng */
-    sim_speed_kmh = 10.0f + ((float32)raw_sim_speed_adc / 4095.0f) * 40.0f;
+    sim_speed_mps = 0.15f + ((float32)raw_sim_speed_adc / 2780.0f) * 2.6f;
 
     msg102.Alpha_Scaled = (uint8)(current_alpha * 100.0f);
-    msg102.SimSpeed_Scaled = (uint16)(sim_speed_kmh * 100.0f);
+    msg102.SimSpeed_Scaled = (uint16)(sim_speed_mps * 100.0f);
     msg102.Node_Status = 0x01u;
 
     Rte_Write_PpMsg102_SysStat(&msg102);
