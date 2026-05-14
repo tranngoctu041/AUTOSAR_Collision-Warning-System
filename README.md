@@ -6,14 +6,16 @@
 
 ## Mục lục
 
-- #Giới thiệu
-- #Kiến trúc hệ thống
-- #Kiến trúc phần mềm AUTOSAR
-- #Software Components
-- #Giao diện HMI
-- #Phần cứng sử dụng
-- #Cấu trúc thư mục
-- #Hướng dẫn cài đặt
+- Giới thiệu
+- Kiến trúc hệ thống
+- Kiến trúc phần mềm AUTOSAR
+- Software Components
+- Giao diện HMI
+- Phần cứng sử dụng
+- Cấu trúc thư mục
+- Hướng dẫn cài đặt
+- Kết quả
+- Tác giả
 
 ---
 
@@ -139,7 +141,7 @@ AUTOSAR_Collision-Warning-System/
 
 ### Phần mềm cần cài đặt
 
-- [S32 Design Studio for S32 Platform](https://www.nxp.com/design/software/development-software/s32-design-studio-ide/s32-design-studio-for-s32-platform:S32DS-S32PLATFORM) + S32K1xx SDK/RTD
+- [S32 Design Studio for S32 Platform](https://www.nxp.com/design/software/development-software/s32-design-studio-ide/s32-design-studio-for-s32-platform:S32DS-S32PLATFORM)
 - [STM32CubeIDE](https://www.st.com/en/development-tools/stm32cubeide.html)
 - Python 3.8+
 
@@ -169,8 +171,7 @@ Tải và giải nén về máy:
 #### Bước 3 — Thêm Include Path (Compiler)
 
 ```
-Project → Properties → C/C++ Build → Settings
-→ Standard S32DS C Compiler → Includes
+Project → Properties → C/C++ Build → Settings → Standard S32DS C Compiler → Includes
 ```
 
 Thêm 3 đường dẫn:
@@ -187,13 +188,12 @@ C:/CMSIS_5-develop/CMSIS/Core/Include
 Project → Properties → C/C++ General → Paths and Symbols → Includes
 ```
 
-Chọn **GNU C**, thêm lại 3 đường dẫn tương tự Bước 3.
+Chọn **GNU C** và thêm lại 3 đường dẫn tương tự Bước 3.
 
 #### Bước 5 — Thêm Preprocessor Symbols
 
 ```
-Project → Properties → C/C++ Build → Settings
-→ Standard S32DS C Compiler → Preprocessor
+Project → Properties → C/C++ Build → Settings → Standard S32DS C Compiler → Preprocessor
 ```
 
 Thêm 2 symbol:
@@ -205,7 +205,7 @@ DISABLEFLOAT16
 
 #### Bước 6 — Copy source files CMSIS-DSP
 
-Copy các file sau vào thư mục `src/` của project:
+Copy các file sau vào thư mục `Include/` của project:
 
 ```
 CommonTables.c
@@ -217,8 +217,7 @@ TransformFunctions.c
 #### Bước 7 — Link thư viện toán học
 
 ```
-Project → Properties → C/C++ Build → Settings
-→ Standard S32DS C Linker → Miscellaneous
+Project → Properties → C/C++ Build → Settings → Standard S32DS C Linker → Miscellaneous
 ```
 
 Thêm linker flag:
@@ -245,15 +244,18 @@ python main_hmi.py
 
 ---
 
-## Kết quả thực nghiệm
+## Kết quả
 
-| Thông số | Giá trị |
-|---------|---------|
-| Chu kỳ xử lý CAN | ~10 ms |
-| Độ trễ cảnh báo FCW | < 50 ms |
-| Sai số D_final (so với LiDAR) | < 5 cm |
-| Tốc độ cập nhật HMI | ~10 FPS |
-| Tầm phát hiện LiDAR | 0.2 – 8 m |
-| Tầm phát hiện Radar | 0.5 – 15 m |
+*(https://drive.google.com/file/d/1Nbz54AVYu6-tcNTgNQWudiVhtcprovUI/view?usp=sharing)*
+
+---
+
+## Tác giả
+
+| Vai trò | Họ tên |
+|---------|--------|
+| Sinh viên thực hiện | Trần Ngọc Tú |
+| Giảng viên hướng dẫn | TS. Hoàng Gia Hưng |
+| Mentor hướng dẫn | Mai Trung Hải (FPT Software)|
 
 ---
