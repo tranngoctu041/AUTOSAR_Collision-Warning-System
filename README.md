@@ -14,7 +14,6 @@
 - Phần cứng sử dụng
 - Cấu trúc thư mục
 - Hướng dẫn cài đặt
-- Kết quả
 - Tác giả
 
 ---
@@ -244,12 +243,6 @@ python main_hmi.py
 
 ---
 
-## Kết quả
-
-*(https://drive.google.com/file/d/1Nbz54AVYu6-tcNTgNQWudiVhtcprovUI/view?usp=sharing)*
-
----
-
 ## Tác giả
 
 | Vai trò | Họ tên |
@@ -258,4 +251,5 @@ python main_hmi.py
 | Giảng viên hướng dẫn | TS. Hoàng Gia Hưng |
 | Mentor hướng dẫn | Mai Trung Hải (FPT Software)|
 
+[Video demo](https://drive.google.com/file/d/1Nbz54AVYu6-tcNTgNQWudiVhtcprovUI/view?usp=sharing)
 ---
