@@ -1307,7 +1307,7 @@ static uint8 Swc_UpdateBsdSide(uint16 dist_cm, uint16 *LastDistPtr, uint16 *Stab
  8000ba0:	2b00      	cmp	r3, #0
  8000ba2:	d002      	beq.n	8000baa <Swc_UpdateBsdSide+0x32>
  8000ba4:	89fb      	ldrh	r3, [r7, #14]
- 8000ba6:	2b3c      	cmp	r3, #60	@ 0x3c
+ 8000ba6:	2b28      	cmp	r3, #40	@ 0x28
  8000ba8:	d908      	bls.n	8000bbc <Swc_UpdateBsdSide+0x44>
     {
         *LastDistPtr = 0xFFFFu;
@@ -1652,7 +1652,7 @@ void Swc_SafetyLogic_Task_10ms(void)
  8000dac:	42c80000 	.word	0x42c80000
  8000db0:	3d4ccccd 	.word	0x3d4ccccd
  8000db4:	40400000 	.word	0x40400000
- 8000db8:	3f19999a 	.word	0x3f19999a
+ 8000db8:	3ecccccd 	.word	0x3ecccccd
  8000dbc:	20000039 	.word	0x20000039
  8000dc0:	2000003a 	.word	0x2000003a
  8000dc4:	2000003c 	.word	0x2000003c
@@ -2841,7 +2841,6 @@ Std_ReturnType Can_Read(Can_PduType* CanPduPtr)
  8001562:	2301      	movs	r3, #1
  8001564:	e070      	b.n	8001648 <Can_Read+0xf4>
     }
-
     if ((CAN1->RF0R & 0x03u) == 0u) {
  8001566:	4b3b      	ldr	r3, [pc, #236]	@ (8001654 <Can_Read+0x100>)
  8001568:	68db      	ldr	r3, [r3, #12]
@@ -2853,19 +2852,19 @@ Std_ReturnType Can_Read(Can_PduType* CanPduPtr)
  8001574:	e068      	b.n	8001648 <Can_Read+0xf4>
     }
 
-    rir = CAN1->sFIFOMailBox[0].RIR;
+    rir = CAN1->sFIFOMailBox[0].RIR; // thanh ghi chứa ID và loại frame
  8001576:	4b37      	ldr	r3, [pc, #220]	@ (8001654 <Can_Read+0x100>)
  8001578:	f8d3 31b0 	ldr.w	r3, [r3, #432]	@ 0x1b0
  800157c:	61bb      	str	r3, [r7, #24]
-    rdtr = CAN1->sFIFOMailBox[0].RDTR;
+    rdtr = CAN1->sFIFOMailBox[0].RDTR; // thanh ghi chứa DLC
  800157e:	4b35      	ldr	r3, [pc, #212]	@ (8001654 <Can_Read+0x100>)
  8001580:	f8d3 31b4 	ldr.w	r3, [r3, #436]	@ 0x1b4
  8001584:	617b      	str	r3, [r7, #20]
-    data_low = CAN1->sFIFOMailBox[0].RDLR;
+    data_low = CAN1->sFIFOMailBox[0].RDLR; // thanh ghi chứa 4 byte dữ liệu đầu
  8001586:	4b33      	ldr	r3, [pc, #204]	@ (8001654 <Can_Read+0x100>)
  8001588:	f8d3 31b8 	ldr.w	r3, [r3, #440]	@ 0x1b8
  800158c:	613b      	str	r3, [r7, #16]
-    data_high = CAN1->sFIFOMailBox[0].RDHR;
+    data_high = CAN1->sFIFOMailBox[0].RDHR; // thanh ghi chứa 4 byte dữ liệu sau
  800158e:	4b31      	ldr	r3, [pc, #196]	@ (8001654 <Can_Read+0x100>)
  8001590:	f8d3 31bc 	ldr.w	r3, [r3, #444]	@ 0x1bc
  8001594:	60fb      	str	r3, [r7, #12]
@@ -2951,6 +2950,7 @@ Std_ReturnType Can_Read(Can_PduType* CanPduPtr)
  8001618:	687b      	ldr	r3, [r7, #4]
  800161a:	731a      	strb	r2, [r3, #12]
 
+    /* xoá các byte ko dùng */
     for (i = CanPduPtr->CanDlc; i < 8u; i++) {
  800161c:	687b      	ldr	r3, [r7, #4]
  800161e:	791b      	ldrb	r3, [r3, #4]
@@ -2971,6 +2971,7 @@ Std_ReturnType Can_Read(Can_PduType* CanPduPtr)
  8001638:	d9f4      	bls.n	8001624 <Can_Read+0xd0>
     }
 
+    /* frame trong FIFO đã được đọc xong */
     CAN1->RF0R |= CAN_RF0R_RFOM0;
  800163a:	4b06      	ldr	r3, [pc, #24]	@ (8001654 <Can_Read+0x100>)
  800163c:	68db      	ldr	r3, [r3, #12]
@@ -2980,6 +2981,7 @@ Std_ReturnType Can_Read(Can_PduType* CanPduPtr)
 
     return E_OK;
  8001646:	2300      	movs	r3, #0
+}
  8001648:	4618      	mov	r0, r3
  800164a:	3724      	adds	r7, #36	@ 0x24
  800164c:	46bd      	mov	sp, r7

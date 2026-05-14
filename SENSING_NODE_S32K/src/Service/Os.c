@@ -12,18 +12,21 @@ extern void Swc_DataAcquisition_Task_30ms(void);
 extern void Swc_DataAcquisition_Task_50ms(void);
 extern void Swc_DataAcquisition_Task_100ms(void);
 
+/* ngắt tạo OS tick 1ms từ LPIT0 kênh 0 */
 void LPIT0_Ch0_IRQHandler(void) {
     Os_SystemTick++;
-    LPIT0->MSR |= (1u << 0);
+    LPIT0->MSR |= (1u << 0); /* xóa cờ ngắt */
 }
 
 void Os_Start(void) {
     Os_SystemTick = 0u;
-    LPIT0->TMR[0].TCTRL |= (1u << 0);
+    LPIT0->TMR[0].TCTRL |= (1u << 0); /* bật TIMER bắt đầu đếm */
 }
 
 void Os_Scheduler(void) {
-    /* lưu mốc tick gần nhất của từng task */
+    /* lưu mốc tick gần nhất của từng task
+     * khởi tạo lệch nhau (0, 10, 20) để tránh việc các task chạy cùng một lúc gây quá tải CPU
+     */
     static uint32 last_run_30ms = 0u;
     static uint32 last_run_50ms = 10u;
     static uint32 last_run_100ms = 20u;

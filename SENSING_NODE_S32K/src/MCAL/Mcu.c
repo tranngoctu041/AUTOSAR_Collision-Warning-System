@@ -6,9 +6,11 @@
 
 void Mcu_Init(const Mcu_ConfigType* ConfigPtr)
 {
-    /* tắt watchdog để tránh reset khi khởi động */
+    /* ghi unlock 0xD928C520 vào CNT để mở khóa WDOG */
     WDOG->CNT   = 0xD928C520u;
     WDOG->TOVAL = 0x0000FFFFu;
+    
+    /* xóa bit EN trong CS để tắt WDOG */
     WDOG->CS    = 0x00002100u;
 
     if (ConfigPtr == NULL_PTR) {

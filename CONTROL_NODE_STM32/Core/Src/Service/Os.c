@@ -16,7 +16,7 @@ void Os_Start(void)
 {
     Os_SystemTick = 0u;
 
-    /* dùng systick tạo tick 1 ms */
+    /* dùng SysTick tạo tick 1 ms */
     SysTick_Config(SystemCoreClock / 1000u);
 }
 
@@ -28,12 +28,14 @@ void Os_Scheduler(void)
 
     uint32 current_tick = Os_SystemTick;
 
+    /* task chu kỳ 10ms: cập nhật đầu vào và chạy logic điều khiển */
     if ((current_tick - last_run_10ms) >= 10u) {
         last_run_10ms = current_tick;
         Rte_Update_Inputs_Task10ms();
         Swc_ControlNode_Task_10ms();
     }
 
+    /* task chu kỳ 50ms: cập nhật dữ liệu lên giao diện HMI */
     if ((current_tick - last_run_50ms) >= 50u) {
         last_run_50ms = current_tick;
         Swc_Hmi_Task_50ms();

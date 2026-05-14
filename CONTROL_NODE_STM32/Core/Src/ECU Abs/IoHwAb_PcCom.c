@@ -4,28 +4,10 @@
 #define IOHWAB_PCCOM_HEADER_1 0xAAu
 #define IOHWAB_PCCOM_HEADER_2 0x55u
 
-/*
- * Frame 25 bytes:
- * 0      Header 1
- * 1      Header 2
- * 2-3    FrontUltra
- * 4-5    Fd_scaled
- * 6-7    LiDAR
- * 8-9    LeftUltra
- * 10-11  RightUltra
- * 12     Alpha_scaled
- * 13-14  SimSpeed_scaled
- * 15-16  D_final
- * 17-18  V_rel_scaled
- * 19-20  A_rel_scaled
- * 21     FCW_State
- * 22     BSD_Left_State
- * 23     BSD_Right_State
- * 24     Status
- * 25     Checksum
- */
+/* tổng frame 26 bytes bao gồm cả checksum */
 #define IOHWAB_PCCOM_FRAME_SIZE 26u
 
+/* tính checksum cho frame bằng toán tử XOR*/
 static uint8 IoHwAb_PcCom_CalcChecksum(const uint8 *data, uint8 length)
 {
     uint8 i;
@@ -65,13 +47,12 @@ Std_ReturnType IoHwAb_PcCom_SendHmiFrame(uint16 front_ultra,
                                          uint8 status)
 {
     uint8 frame[IOHWAB_PCCOM_FRAME_SIZE];
-
     uint8 alpha_scaled;
     uint16 sim_speed_scaled;
-
     uint16 v_rel_u16;
     uint16 a_rel_u16;
 
+    /* kiểm tra và giới hạn giá trị alpha để tránh tràn số*/
     if (alpha < 0.0f)
     {
         alpha = 0.0f;
@@ -79,9 +60,6 @@ Std_ReturnType IoHwAb_PcCom_SendHmiFrame(uint16 front_ultra,
     else if (alpha > 2.55f)
     {
         alpha = 2.55f;
-    }
-    else
-    {
     }
 
     if (sim_speed < 0.0f)
@@ -92,13 +70,10 @@ Std_ReturnType IoHwAb_PcCom_SendHmiFrame(uint16 front_ultra,
     {
         sim_speed = 655.35f;
     }
-    else
-    {
-    }
 
+    /* scale dữ liệu thực sang số nguyên để truyền UART */
     alpha_scaled = (uint8)(alpha * 100.0f);
     sim_speed_scaled = (uint16)(sim_speed * 100.0f);
-
     v_rel_u16 = (uint16)v_rel_scaled;
     a_rel_u16 = (uint16)a_rel_scaled;
 
@@ -139,8 +114,10 @@ Std_ReturnType IoHwAb_PcCom_SendHmiFrame(uint16 front_ultra,
     frame[23] = bsd_right_state;
     frame[24] = status;
 
+    /* tính checksum cho frame */
     frame[25] = IoHwAb_PcCom_CalcChecksum(frame, (uint8)(IOHWAB_PCCOM_FRAME_SIZE - 1u));
 
+    /* gửi frame qua UART */
     Uart_SendBuffer(frame, IOHWAB_PCCOM_FRAME_SIZE);
 
     return E_OK;

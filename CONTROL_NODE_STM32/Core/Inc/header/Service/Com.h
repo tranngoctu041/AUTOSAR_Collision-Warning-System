@@ -4,10 +4,10 @@
 #include "Std_Types.h"
 #include "Can.h"
 
-/* nhận pdu từ pdur rồi lưu vào queue com */
+/* nhận PDU từ PduR rồi lưu vào queue Com */
 Std_ReturnType Com_RxIndication(const Can_PduType* CanPduPtr);
 
-/* đọc 1 pdu từ queue com */
+/* đọc 1 PDU từ queue Com */
 Std_ReturnType Com_Receive(Can_PduType* CanPduPtr);
 
 #endif /* COM_H */

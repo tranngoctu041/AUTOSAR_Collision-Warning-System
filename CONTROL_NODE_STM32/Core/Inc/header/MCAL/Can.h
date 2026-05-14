@@ -9,10 +9,10 @@ typedef struct {
     uint8 CanData[8];
 } Can_PduType;
 
-/* khởi tạo can1 */
+/* khởi tạo CAN1 */
 void Can_Init(void);
 
-/* đọc 1 frame can từ fifo0 */
+/* đọc 1 frame CAN từ FIFO0 */
 Std_ReturnType Can_Read(Can_PduType* CanPduPtr);
 
 #endif /* CAN_H */

@@ -14,28 +14,30 @@
 #define FTM_CLKS_SYSTEM         (1u << 3)
 
 /*
- * Hệ số quy đổi tick FTM -> us.
- * Trước để 2.666f nên HC-SR04 đo thấp hơn LiDAR khá nhiều.
- * Giá trị 3.58f tương ứng gần với clock FTM thực tế khoảng 36MHz / prescaler 128.
+ * nguồn timer FTM0 = 48 MHz
+ * thanh ghi SC được set PRESCALER = 128 nên tần số đếm của FTM0 là 48 MHz / 128 = 375 kHz
+ * thời gian của một tick là 1 / 375 kHz = 2.666 us
  */
-#define FTM_TICK_TO_US          3.58f
+#define FTM_TICK_TO_US          2.666f
 
 static void Icu_StopTimer(void)
 {
+    /* xóa bit CLKS trong thanh ghi SC để dừng timer FTM0 */
     FTM0->SC &= ~FTM_CLKS_MASK;
 }
 
 static void Icu_ClearChannelFlag(uint8 channel)
 {
+    /* xóa cờ CHF trong thanh ghi CnSC để chuẩn bị bắt sự kiện mới */
     FTM0->CONTROLS[channel].CnSC &= ~FTM_CHF_MASK;
 }
 
 void Icu_Init(void)
 {
+    /* cấp xung clock cho FTM0 */
     PCC->PCCn[PCC_FTM0_INDEX] &= ~(0xD3000000u);
     PCC->PCCn[PCC_FTM0_INDEX] |= (3u << 24) | (1u << 30);
 
-    /* bỏ bảo vệ ghi thanh ghi ftm */
     FTM0->MODE |= (1u << 2);
 
     Icu_StopTimer();
@@ -43,9 +45,10 @@ void Icu_Init(void)
     FTM0->CNTIN = 0u;
     FTM0->MOD = 0xFFFFu;
 
-    /* prescaler = 128, chưa chạy timer */
+    /* cấu hình PRESCALER = 128 vào thanh ghi SC */
     FTM0->SC = 0x00000007u;
 
+    /* xóa cấu hình cũ của các kênh input capture */
     FTM0->CONTROLS[0].CnSC = 0x00u;
     FTM0->CONTROLS[2].CnSC = 0x00u;
     FTM0->CONTROLS[3].CnSC = 0x00u;
@@ -65,6 +68,7 @@ uint16 Icu_MeasurePulseWidth_us(uint8 channel)
 
     Icu_StopTimer();
 
+    /* reset bộ đếm CNT và xóa cờ để bắt đầu chu kỳ mới */
     FTM0->CNT = 0u;
     FTM0->CONTROLS[channel].CnSC = 0x00u;
     Icu_ClearChannelFlag(channel);
@@ -110,6 +114,7 @@ uint16 Icu_MeasurePulseWidth_us(uint8 channel)
     Icu_StopTimer();
     FTM0->CONTROLS[channel].CnSC = 0x00u;
 
+    /* tính số tick */
     if (end_time >= start_time) {
         pulse_ticks = (uint32)(end_time - start_time);
     }

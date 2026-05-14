@@ -3,7 +3,7 @@
 
 #include "Std_Types.h"
 
-/* nhận pdu từ canif rồi chuyển lên com */
+/* nhận PDU từ CanIf rồi chuyển lên Com */
 Std_ReturnType PduR_CanIfRxIndication(void);
 
 #endif /* PDUR_H */

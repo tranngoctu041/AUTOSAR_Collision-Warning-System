@@ -3,13 +3,13 @@
 
 #include "Std_Types.h"
 
-/* khởi động scheduler bằng cách cho timer tick chạy */
+/* khởi động scheduler bằng cách cấu hình và chạy SysTick */
 void Os_Start(void);
 
-/* chạy bộ lập lịch chính theo chu kỳ */
+/* kiểm tra thời gian và gọi các task ứng dụng theo chu kỳ */
 void Os_Scheduler(void);
 
-/* cập nhật tick hệ thống cho os */
+/* API để các ngắt hệ thống cập nhật tick cho OS */
 void Os_Tick(void);
 
 #endif /* OS_H */

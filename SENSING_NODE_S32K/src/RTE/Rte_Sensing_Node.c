@@ -15,6 +15,7 @@ static uint16  Rte_Buffer_SimSpeedAdc = 0u;
 void Rte_Update_Inputs_Task30ms(void) {
     CDD_HighSpeedData cddData;
 
+    /* lấy dữ liệu từ LiDAR và Radar */
     CDD_LiDAR_Radar_GetData(&cddData);
 
     if (cddData.Lidar_IsValid) {
@@ -25,6 +26,7 @@ void Rte_Update_Inputs_Task30ms(void) {
         Rte_Buffer_RadarFd = cddData.Radar_Fd_Hz;
     }
 
+    /* đọc khoảng cách siêu âm phía trước */
     IoHwAb_Read_FrontUltra(&Rte_Buffer_FrontUltra);
 }
 
@@ -71,6 +73,7 @@ Std_ReturnType Rte_Read_RpSimSpeedAdcRaw(uint16* data) {
 Std_ReturnType Rte_Write_PpMsg100_FrontObstacle(const Rte_Msg100_FrontObstacle* data) {
     uint8 can_payload[8] = {0u};
 
+    /* tách dữ liệu 16-bit thành 2 byte, AND với 0xFFu lấy byte thấp, dịch phải 8 bit để lấy byte cao */
     can_payload[0] = (uint8)(data->FrontUltra_Distance_cm & 0xFFu);
     can_payload[1] = (uint8)((data->FrontUltra_Distance_cm >> 8) & 0xFFu);
     can_payload[2] = (uint8)((uint16)data->Cdm324_Fd_scaled & 0xFFu);

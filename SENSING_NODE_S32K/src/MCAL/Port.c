@@ -13,7 +13,7 @@ const Port_PinConfigType Port_PinConfigList[] = {
     /* biến trở mô phỏng tốc độ */
     {PORT_A, 6u, 0u, PORT_PIN_IN},
 
-    /* LiDAR RX */
+    /* lidar RX */
     {PORT_C, 2u, 4u, PORT_PIN_IN},
 
     /* siêu âm trước */

@@ -54,17 +54,17 @@ Std_ReturnType Can_Write(uint8 Hth, uint32 CanId, const uint8* PduInfoPtr, uint8
     uint32 word0 = 0u;
     uint32 word1 = 0u;
 
+    /* kiểm tra dữ liệu và mailbox hợp lệ */
     if ((PduInfoPtr == NULL_PTR) || (Length > 8u)) {
         return E_NOT_OK;
     }
-
     if ((Hth == 0u) || (Hth > 15u)) {
         return E_NOT_OK;
     }
 
     mb_index = (uint32)Hth * 4u;
 
-    /* gán standard ID */
+    /* gán ID */
     CAN0->RAMn[mb_index + 1u] = (CanId << 18);
 
     /* đóng gói 8 byte dữ liệu vào 2 word */

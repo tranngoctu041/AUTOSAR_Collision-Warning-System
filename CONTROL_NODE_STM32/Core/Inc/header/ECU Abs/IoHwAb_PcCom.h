@@ -3,8 +3,10 @@
 
 #include "Std_Types.h"
 
+/* khởi tạo giao tiếp Serial với máy tính */
 void IoHwAb_PcCom_Init(void);
 
+/* đóng gói dữ liệu cảm biến và trạng thái cảnh báo gửi lên HMI */
 Std_ReturnType IoHwAb_PcCom_SendHmiFrame(uint16 front_ultra,
                                          uint16 fd_scaled,
                                          uint16 lidar,
@@ -20,4 +22,4 @@ Std_ReturnType IoHwAb_PcCom_SendHmiFrame(uint16 front_ultra,
                                          uint8 bsd_right_state,
                                          uint8 status);
 
-#endif
+#endif /* IOHWAB_PCCOM_H */

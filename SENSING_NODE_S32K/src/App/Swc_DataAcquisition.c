@@ -7,16 +7,17 @@ void Swc_DataAcquisition_Task_30ms(void) {
     uint16 raw_lidar_dist = 0u;
     uint16 raw_front_ultra = 0u;
 
+    /* đọc dữ liệu thô từ RTE */
     Rte_Read_RpLidar_Distance(&raw_lidar_dist);
     Rte_Read_RpRadar_Fd(&raw_radar_fd);
     Rte_Read_RpFrontUltra_Distance(&raw_front_ultra);
 
     msg100.FrontUltra_Distance_cm = raw_front_ultra;
     msg100.Lidar_Distance_cm = raw_lidar_dist;
-    /* Fd Hz -> scale x100 để gửi CAN */
+
     msg100.Cdm324_Fd_scaled = (uint16)(raw_radar_fd * 100.0f);
 
-    Rte_Write_PpMsg100_FrontObstacle(&msg100);
+    Rte_Write_PpMsg100_FrontObstacle(&msg100); /* gửi bản tin 100 */
 }
 
 void Swc_DataAcquisition_Task_50ms(void) {
@@ -24,12 +25,13 @@ void Swc_DataAcquisition_Task_50ms(void) {
     uint16 raw_left_ultra = 0u;
     uint16 raw_right_ultra = 0u;
 
+    /* đọc dữ liệu siêu âm trái/phải từ RTE */
     Rte_Read_RpSideUltras_Distance(&raw_left_ultra, &raw_right_ultra);
 
     msg101.LeftUltra_Distance_cm = raw_left_ultra;
     msg101.RightUltra_Distance_cm = raw_right_ultra;
 
-    Rte_Write_PpMsg101_BlindSpot(&msg101);
+    Rte_Write_PpMsg101_BlindSpot(&msg101); /* gửi bản tin 101 */
 }
 
 void Swc_DataAcquisition_Task_100ms(void) {
@@ -39,6 +41,7 @@ void Swc_DataAcquisition_Task_100ms(void) {
     float32 current_alpha = 0.0f;
     float32 sim_speed_mps = 0.0f;
 
+    /* đọc adc từ cảm biến mưa và biến trở */
     Rte_Read_RpRainSensor_AdcRaw(&raw_rain_adc);
     Rte_Read_RpSimSpeedAdcRaw(&raw_sim_speed_adc);
 
@@ -52,5 +55,5 @@ void Swc_DataAcquisition_Task_100ms(void) {
     msg102.SimSpeed_Scaled = (uint16)(sim_speed_mps * 100.0f);
     msg102.Node_Status = 0x01u;
 
-    Rte_Write_PpMsg102_SysStat(&msg102);
+    Rte_Write_PpMsg102_SysStat(&msg102); /* gửi bản tin 102 */
 }

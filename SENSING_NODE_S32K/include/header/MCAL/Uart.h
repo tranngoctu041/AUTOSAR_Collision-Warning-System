@@ -6,7 +6,7 @@
 /* khởi tạo LPUART0 ở chế độ nhận dữ liệu */
 void Uart_Init(void);
 
-/* xóa cờ lỗi overrun và các cờ lỗi liên quan của LPUART0 */
+/* xóa cờ lỗi OVERRUN và các cờ lỗi liên quan của LPUART0 */
 void Uart_ClearOverrun_LPUART0(void);
 
 /* đọc 1 byte từ LPUART0, trả về 1 nếu có dữ liệu */

@@ -3,7 +3,7 @@
 
 #include "Std_Types.h"
 
-/* khởi tạo uart1 */
+/* khởi tạo UART1 */
 void Uart_Init(void);
 
 /* gửi 1 ký tự */
@@ -12,10 +12,10 @@ void Uart_SendChar(uint8 data);
 /* gửi 1 chuỗi */
 void Uart_SendString(const char* str);
 
-/* gửi 1 số nguyên */
+/* chuyển đổi và gửi 1 số nguyên */
 void Uart_SendNumber(sint32 num);
 
-/* gửi 1 số thực để debug */
+/* chuyển đổi và gửi 1 số thực để debug */
 void Uart_SendFloat(float32 num, uint8 decimal_places);
 
 /* gửi 1 buffer */

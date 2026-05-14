@@ -2,11 +2,11 @@
 #include "stm32f1xx.h"
 
 const Port_PinConfigType Port_PinConfigList[] = {
-    /* uart1 tx, rx */
+    /* UART1 TX, RX */
     {PORT_A, 9u,  0x0Bu},
     {PORT_A, 10u, 0x04u},
 
-    /* can1 rx, tx */
+    /* CAN1 RX, TX */
     {PORT_A, 11u, 0x08u},
     {PORT_A, 12u, 0x0Bu}
 };
@@ -31,7 +31,7 @@ void Port_Init(const Port_ConfigType* ConfigPtr)
         return;
     }
 
-    /* bật clock gpioa và afio */
+    /* bật clock GPIOA và AFIO */
     RCC->APB2ENR |= RCC_APB2ENR_IOPAEN |
                     RCC_APB2ENR_AFIOEN;
 
@@ -40,6 +40,7 @@ void Port_Init(const Port_ConfigType* ConfigPtr)
         uint8 pin = ConfigPtr->PinList[i].PinNumber;
         uint8 cfg = ConfigPtr->PinList[i].ConfigValue;
 
+        /* cấu hình chân GPIO */
         if (pin < 8u) {
             Port_GpioBase[port]->CRL &= ~(0x0Fu << (pin * 4u));
             Port_GpioBase[port]->CRL |= ((uint32)cfg << (pin * 4u));
@@ -50,6 +51,6 @@ void Port_Init(const Port_ConfigType* ConfigPtr)
         }
     }
 
-    /* kéo lên cho can rx */
+    /* kéo lên cho CAN RX */
     GPIOA->ODR |= (1u << 11);
 }

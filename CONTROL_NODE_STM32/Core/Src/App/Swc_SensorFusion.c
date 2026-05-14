@@ -2,15 +2,17 @@
 
 extern void Swc_SafetyLogic_Task_10ms(void);
 
+/* các hằng số cấu hình thuật toán fusion */
 #define SWC_DFINAL_SIGN_DEADBAND_CM      2.0f
 #define SWC_DFINAL_FILTER_ALPHA          0.7f
 #define SWC_AREL_FILTER_ALPHA            0.7f
 #define SWC_DOPPLER_TO_VREL_GAIN         0.0062f
 #define SWC_TASK_PERIOD_SEC              0.01f
 
-/* giữ dấu vận tốc tối đa 50 tick = 500ms nếu D_final không đổi rõ */
+/* giữ dấu vận tốc tối đa 50 tick = 500ms nếu Dfinal không đổi rõ */
 #define SWC_VREL_SIGN_HOLD_MAX_TICKS     50u
 
+/* giới hạn gia tốc tương đối */
 #define SWC_AREL_LIMIT_MPS2              5.0f
 
 static uint16  Swc_Buffer_Dfinal = 0xFFFFu;
@@ -75,6 +77,7 @@ void Swc_SensorFusion_Task_10ms(void)
     (void)sim_speed;
     (void)status;
 
+    /* đọc dữ liệu từ các cảm biến */
     (void)Rte_Read_RpMsg100_FrontObstacle(&front_ultra, &fd_scaled, &lidar);
     (void)Rte_Read_RpMsg102_SysStat(&alpha, &sim_speed, &status);
 
@@ -83,10 +86,7 @@ void Swc_SensorFusion_Task_10ms(void)
 
     alpha_used = Swc_ClampFloat(alpha, 0.0f, 1.0f);
 
-    /*
-     * hợp nhất khoảng cách trước xe
-     * alpha càng lớn thì tin LiDAR nhiều hơn
-     */
+    /* hợp nhất khoảng cách trước xe */
     if ((lidar_valid == TRUE) && (ultra_valid == TRUE)) {
         dfinal_now = (alpha_used * (float32)lidar) +
                      ((1.0f - alpha_used) * (float32)front_ultra);
@@ -105,12 +105,9 @@ void Swc_SensorFusion_Task_10ms(void)
         dfinal_valid = FALSE;
     }
 
-    /*
-     * lọc D_final và xác định dấu Vrel từ xu hướng D_final
-     *
-     * quy ước:
-     * D_final giảm  -> vật lại gần -> vrel_sign = +1
-     * D_final tăng  -> vật ra xa   -> vrel_sign = -1
+    /* lọc Dfinal và xác định dấu Vrel từ xu hướng DDfinal
+     * Dfinal giảm  -> vật lại gần -> vrel_sign = +1
+     * Dfinal tăng  -> vật ra xa   -> vrel_sign = -1
      */
     if (dfinal_valid == TRUE) {
         if (first_valid_dfinal == TRUE) {
@@ -121,6 +118,7 @@ void Swc_SensorFusion_Task_10ms(void)
             sign_hold_ticks = 0u;
         }
         else {
+            /* lọc Dfinal */
             dfinal_filt = (SWC_DFINAL_FILTER_ALPHA * dfinal_filt) +
                           ((1.0f - SWC_DFINAL_FILTER_ALPHA) * dfinal_now);
 
@@ -135,6 +133,7 @@ void Swc_SensorFusion_Task_10ms(void)
                 sign_hold_ticks = 0u;
             }
             else {
+                /* giữ dấu vận tốc nếu Dfinal không đổi rõ */
                 if (sign_hold_ticks < SWC_VREL_SIGN_HOLD_MAX_TICKS) {
                     sign_hold_ticks++;
                 }
@@ -158,9 +157,7 @@ void Swc_SensorFusion_Task_10ms(void)
         Swc_Buffer_Dfinal = 0xFFFFu;
     }
 
-    /*
-     * tính Vrel từ Fd Doppler
-     */
+    /* tính Vrel từ Fd Doppler */
     if ((Swc_Buffer_Dfinal != 0xFFFFu) &&
         (vrel_sign != 0)) {
 
@@ -168,9 +165,11 @@ void Swc_SensorFusion_Task_10ms(void)
         vrel_mag = fd_hz * SWC_DOPPLER_TO_VREL_GAIN;
         vrel_now = (float32)vrel_sign * vrel_mag;
 
+        /* tính Arel từ Vrel */
         arel_raw = (vrel_now - prev_vrel) / SWC_TASK_PERIOD_SEC;
         arel_raw = Swc_ClampFloat(arel_raw, -SWC_AREL_LIMIT_MPS2, SWC_AREL_LIMIT_MPS2);
 
+        /* lọc Arel */
         Swc_Buffer_Arel = (SWC_AREL_FILTER_ALPHA * prev_arel) +
                           ((1.0f - SWC_AREL_FILTER_ALPHA) * arel_raw);
 

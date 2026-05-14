@@ -3,36 +3,26 @@
 #include "Dio.h"
 #include "Icu.h"
 
-#define TRIG_FRONT 112u /* PTD16 */
-#define TRIG_LEFT  109u /* PTD13 */
-#define TRIG_RIGHT 110u /* PTD14 */
-
-/* led trên kit, thường active-low */
-#define LED_RED_PTD15       111u
-#define LED_GREEN_PTD16     112u
-#define LED_YELLOW_PTD14    110u
+#define TRIG_FRONT 112u
+#define TRIG_LEFT  109u
+#define TRIG_RIGHT 110u
 
 #define ULTRA_INVALID_CM        0xFFFFu
 #define ULTRA_MIN_VALID_CM      2u
 #define ULTRA_MAX_VALID_CM      350u
 
-/*
- * Front chạy task nhanh hơn, nên lọc chặt hơn.
- * Task 30ms nhưng chỉ trigger thật mỗi 60ms.
- */
+/* cảm biến trước chạy task nhanh hơn nên cần chia tần số đọc (chia 2) */
 #define FRONT_READ_DIVIDER_MAX      2u
 #define FRONT_JUMP_REJECT_CM        50u
 #define FRONT_SPIKE_CONFIRM_COUNT   2u
 #define FRONT_MAX_MISS_COUNT        3u
 
-/*
- * Side đọc luân phiên trái/phải nên mỗi con chậm hơn,
- * vẫn lọc nhẹ để tránh timeout/spike.
- */
+/* cảm biến bên đọc luân phiên trái/phải lọc nhẹ để tránh timeout */
 #define SIDE_JUMP_REJECT_CM         60u
 #define SIDE_SPIKE_CONFIRM_COUNT    2u
 #define SIDE_MAX_MISS_COUNT         3u
 
+/* struct chứa các trạng thái để chạy bộ lọc nhiễu */
 typedef struct {
     uint16 last_valid;
     uint16 spike_candidate;
@@ -71,6 +61,7 @@ static void delay_10us(void)
     }
 }
 
+/* tạo trễ 3us để trigger xuống mức thấp hoàn toàn */
 static void delay_3us(void)
 {
     volatile uint32 i;
@@ -111,10 +102,10 @@ static void IoHwAb_Ultra_ResetFilter(IoHwAb_UltraFilterType* FilterPtr)
 }
 
 /*
- * Lọc siêu âm:
- * - giá trị hợp lệ và gần last_valid: nhận luôn
- * - timeout/miss vài lần: giữ last_valid
- * - nhảy quá xa: coi là spike, chỉ nhận nếu lặp lại đủ số lần
+ * logic lọc nhiễu:
+ * - nếu mất tín hiệu trả về giá trị cũ vài lần trước khi báo lỗi
+ * - nếu giá trị đo được nhảy vọt => nhiễu
+ * - chờ nếu giá trị nhảy vọt lặp lại đủ số lần thì mới cập nhật
  */
 static uint16 IoHwAb_Ultra_ApplyFilter(uint16 measured_cm,
                                        IoHwAb_UltraFilterType* FilterPtr,
@@ -160,10 +151,7 @@ static uint16 IoHwAb_Ultra_ApplyFilter(uint16 measured_cm,
         return FilterPtr->last_valid;
     }
 
-    /*
-     * Nhảy xa bất thường.
-     * Ví dụ đang 183cm mà nhảy 70cm đúng 1-2 frame thì giữ 183cm.
-     */
+    /* phát hiện số đo bị nhảy quá ngưỡng */
     if (FilterPtr->spike_candidate == ULTRA_INVALID_CM) {
         FilterPtr->spike_candidate = measured_cm;
         FilterPtr->spike_count = 1u;
@@ -180,6 +168,7 @@ static uint16 IoHwAb_Ultra_ApplyFilter(uint16 measured_cm,
         FilterPtr->spike_count = 1u;
     }
 
+    /* xác nhận đổi giá trị nếu duy trì đủ lâu */
     if (FilterPtr->spike_count >= spike_confirm_count) {
         FilterPtr->last_valid = measured_cm;
         FilterPtr->spike_candidate = ULTRA_INVALID_CM;
@@ -194,11 +183,7 @@ static uint16 IoHwAb_Ultra_TriggerAndRead(uint16 trig_channel, uint8 icu_channel
     uint16 echo_us;
     uint16 dist_cm;
 
-    /*
-     * TRIG idle low.
-     * Nếu chân này trùng LED active-low trên kit thì LED có thể sáng,
-     * đây là xung đột phần cứng chứ không phải lỗi code.
-     */
+    /* kéo TRIG xuống thấp rồi đẩy lên cao 10us để kích hoạt siêu âm */
     Dio_WriteChannel(trig_channel, STD_LOW);
     delay_3us();
 
@@ -212,6 +197,7 @@ static uint16 IoHwAb_Ultra_TriggerAndRead(uint16 trig_channel, uint8 icu_channel
         return ULTRA_INVALID_CM;
     }
 
+    /* công thức tính khoảng cách siêu âm */
     dist_cm = (uint16)(echo_us / 58u);
 
     if (IoHwAb_Ultra_IsValid(dist_cm) == FALSE) {
@@ -221,24 +207,12 @@ static uint16 IoHwAb_Ultra_TriggerAndRead(uint16 trig_channel, uint8 icu_channel
     return dist_cm;
 }
 
-static void IoHwAb_TurnOffUnusedBoardLed(void)
-{
-    /*
-     * Chỉ tắt chắc được LED không dùng làm TRIG.
-     * PTD14/PTD16 đang làm TRIG_RIGHT/TRIG_FRONT nên không thể vừa idle LOW
-     * cho HC-SR04 vừa tắt LED active-low.
-     */
-    Dio_WriteChannel(LED_RED_PTD15, STD_HIGH);
-}
-
 void IoHwAb_Sensors_Init(void)
 {
     /* tắt hết chân kích xung siêu âm lúc khởi động */
     Dio_WriteChannel(TRIG_FRONT, STD_LOW);
     Dio_WriteChannel(TRIG_LEFT, STD_LOW);
     Dio_WriteChannel(TRIG_RIGHT, STD_LOW);
-
-    IoHwAb_TurnOffUnusedBoardLed();
 
     IoHwAb_Ultra_ResetFilter(&IoHwAb_FrontFilter);
     IoHwAb_Ultra_ResetFilter(&IoHwAb_LeftFilter);
@@ -254,10 +228,7 @@ void IoHwAb_Read_FrontUltra(uint16* dist_cm)
         return;
     }
 
-    /*
-     * Task 30ms vẫn gọi đều, nhưng HC-SR04 front chỉ đo thật mỗi 60ms.
-     * Các frame còn lại trả last_valid đã lọc.
-     */
+    /* chia tần số thực thi để tránh xung TRIG quá nhanh gây nhiễu */
     if (read_divider < (FRONT_READ_DIVIDER_MAX - 1u)) {
         read_divider++;
 
@@ -291,10 +262,7 @@ void IoHwAb_Read_SideUltras(uint16* left_cm, uint16* right_cm)
         return;
     }
 
-    /*
-     * Đọc luân phiên trái/phải để tránh nhiễu sóng.
-     * Task 50ms => mỗi con được đo thật khoảng 100ms/lần.
-     */
+    /* đọc luân phiên trái/phải để tránh nhiễu sóng siêu âm chéo nhau */
     if (toggle == 0u) {
         measured_cm = IoHwAb_Ultra_TriggerAndRead(TRIG_LEFT, 3u);
 
@@ -329,6 +297,8 @@ void IoHwAb_Read_Rain(uint16* adc_raw)
     }
 
     Adc_StartGroupConversion(ADC_GROUP_RAIN);
+
+    /* chờ cờ COCO đến khi phần cứng ADC0 xử lý xong */
     while (Adc_GetGroupStatus(ADC_GROUP_RAIN) == ADC_BUSY) {
     }
     Adc_ReadGroup(ADC_GROUP_RAIN, adc_raw);
@@ -341,6 +311,8 @@ void IoHwAb_Read_SimSpeedAdc(uint16* adc_raw)
     }
 
     Adc_StartGroupConversion(ADC_GROUP_POT);
+
+    /* chờ cờ COCO đến khi phần cứng ADC0 xử lý xong */
     while (Adc_GetGroupStatus(ADC_GROUP_POT) == ADC_BUSY) {
     }
     Adc_ReadGroup(ADC_GROUP_POT, adc_raw);

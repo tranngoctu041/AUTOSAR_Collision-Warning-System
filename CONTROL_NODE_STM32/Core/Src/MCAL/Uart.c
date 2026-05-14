@@ -3,19 +3,22 @@
 
 void Uart_Init(void)
 {
-    /* bật clock cho usart1 */
+    /* bật clock cho USART1 */
     RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
 
-    /* baudrate 115200 với pclk2 = 72 mhz */
+    /* baudrate 115200 với PCLK2 = 72 MHz => BRR = 72000000 / 115200 = 625 => 0x271 */
     USART1->BRR = 0x271u;
 
-    /* bật uart, tx, rx */
+    /* bật UART, TX, RX */
     USART1->CR1 = USART_CR1_UE | USART_CR1_TE | USART_CR1_RE;
 }
 
 void Uart_SendChar(uint8 data)
 {
+    /* chờ cờ TXE */
     while ((USART1->SR & USART_SR_TXE) == 0u) {}
+
+    /* gửi dữ liệu */
     USART1->DR = (uint16)data;
 }
 
@@ -49,12 +52,14 @@ void Uart_SendNumber(sint32 num)
         return;
     }
 
+    /* chuyển đổi số nguyên thành chuỗi */
     while (value > 0u) {
         buffer[i] = (char)('0' + (value % 10u));
         value /= 10u;
         i++;
     }
 
+    /* in ngược mảng lại để ra đúng thứ tự số */
     while (i > 0) {
         i--;
         Uart_SendChar((uint8)buffer[i]);
@@ -72,12 +77,14 @@ void Uart_SendFloat(float32 num, uint8 decimal_places)
         num = -num;
     }
 
+    /* tách phần nguyên và phần thập phân */
     int_part = (sint32)num;
     frac_part = num - (float32)int_part;
 
     Uart_SendNumber(int_part);
     Uart_SendChar((uint8)'.');
 
+    /* dịch phần thập phân */
     for (i = 0u; i < decimal_places; i++) {
         frac_part *= 10.0f;
         Uart_SendChar((uint8)('0' + (uint8)frac_part));

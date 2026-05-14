@@ -5,40 +5,36 @@
 #include <math.h>
 #include <stdlib.h>
 
-/* cấu hình LiDAR */
-#define LIDAR_HEADER     0x59u
+#define LIDAR_HEADER 0x59u
 #define LIDAR_FRAME_SIZE 9u
 
-/* cấu hình Radar FFT */
-#define N_SAMPLES              1024u
-#define FFT_STEP               204u
-#define THRESHOLD_P2P          3.5f
-#define DETECT_MIN_MAG         0.2f
-#define DETECT_MIN_SNR         2.0f
-#define DETECT_HIT_FRAMES      1u
-#define RELEASE_DROP_FRAMES    1u
-#define NUM_FRAME_SMOOTHING    2u
-#define BG_ALPHA               0.05f
+#define N_SAMPLES 1024u
+#define FFT_STEP 204u
+#define THRESHOLD_P2P 3.5f
+#define DETECT_MIN_MAG 0.2f
+#define DETECT_MIN_SNR 2.0f
+#define DETECT_HIT_FRAMES 1u
+#define RELEASE_DROP_FRAMES 1u
+#define NUM_FRAME_SMOOTHING 2u
+#define BG_ALPHA 0.05f
 
 #ifndef PCC_LPIT_INDEX
 #define PCC_LPIT_INDEX 84u
 #endif
 
 #define LPIT0 ((LPIT_Type *)IP_LPIT0_BASE)
-#define ADC1  ((ADC_Type *)IP_ADC1_BASE)
+#define ADC1 ((ADC_Type *)IP_ADC1_BASE)
 #define NVIC_ISER ((volatile uint32 *)0xE000E100u)
 
 static CDD_HighSpeedData CurrentSensorData;
 
-/* buffer cho LiDAR */
 static uint8 lidar_buffer[LIDAR_FRAME_SIZE];
 static uint8 lidar_index = 0u;
 
-/* buffer và biến cho Radar */
 static volatile uint16 adc_ring[N_SAMPLES];
 static volatile uint32 adc_write_idx = 0u;
 static volatile uint32 step_counter = 0u;
-static volatile uint8  data_ready = 0u;
+static volatile uint8 data_ready = 0u;
 
 static float32_t bg_magnitude[N_SAMPLES / 2u] = {0.0f};
 static float32_t float_adc[N_SAMPLES];
@@ -53,13 +49,12 @@ static uint8 is_target_valid = 0u;
 static float32_t fd_history[NUM_FRAME_SMOOTHING] = {0.0f};
 static uint8 fd_history_idx = 0u;
 
-/* hàm tính cửa sổ Hanning */
+// hàm tính cửa sổ hanning
 static float32_t Compute_Hanning(uint32_t i, uint32_t n)
 {
     return 0.5f * (1.0f - arm_cos_f32(2.0f * PI * (float32_t)i / (float32_t)(n - 1u)));
 }
 
-/* hàm đặt lại trạng thái detect */
 static void Reset_Detect_State(void)
 {
     uint32 i;
@@ -68,53 +63,43 @@ static void Reset_Detect_State(void)
     drop_count = 0u;
     is_target_valid = 0u;
 
-    for (i = 0u; i < NUM_FRAME_SMOOTHING; i++) {
+    for (i = 0u; i < NUM_FRAME_SMOOTHING; i++)
+    {
         fd_history[i] = 0.0f;
     }
 
     fd_history_idx = 0u;
 }
 
-/* cấu hình LPIT channel 2 để lấy mẫu radar */
-static void CDD_RadarTimer_Init(void)
-{
-    /* Gpt_Init đã bật LPIT và đang dùng channel 0,1
-       ở đây chỉ cấu hình thêm channel 2 */
-
-    LPIT0->TMR[2].TCTRL = 0x00000000u;
-    LPIT0->MSR |= (1u << 2);
-
-    /* LPIT đang chạy FIRC 48MHz từ Gpt_Init nên để Fs ~ 2048Hz
-       thì phải tăng TVAL lên khoảng 48M / 2048 = 23438 */
-    LPIT0->TMR[2].TVAL = 23438u;
-    LPIT0->MIER |= (1u << 2);
-
-    /* IRQ LPIT0 channel 2 */
-    NVIC_ISER[1] |= (1u << 18);
-
-    LPIT0->TMR[2].TCTRL |= (1u << 0);
-}
-
-/* ngắt lấy mẫu radar từ ADC1_SE7 = PTE2 */
+// ngắt timer LPIT báo lấy mẫu radar
 void LPIT0_Ch2_IRQHandler(void)
 {
     uint32 timeout = 1000u;
-    LPIT0->MSR = (1u << 2);
+    
+    // ghi 1 vào bit TIF2 để xóa cờ ngắt LPIT channel 2
+    LPIT0->MSR = (1u << 2); 
 
-    /* đọc trực tiếp ADC1 channel 7 để không tranh với ADC0 của cảm biến mưa */
+    // ghi 10 vào ADCH của thanh ghi SC1A để trigger lấy mẫu kênh ADC1_SE10 (chân PTE2)
     ADC1->SC1[0] = 10u;
-    while ((ADC1->SC1[0] & (1u << 7)) == 0u) {
-        if (--timeout == 0u) {
+    
+    // chờ cờ COCO (bit 7) lên 1 báo ADC chuyển đổi xong
+    while ((ADC1->SC1[0] & (1u << 7)) == 0u)
+    {
+        if (--timeout == 0u)
+        {
             return;
         }
     }
-    
+
+    // đọc data và mask lấy 12 bit kết quả
     adc_ring[adc_write_idx] = (uint16)(ADC1->R[0] & 0x0FFFu);
 
     adc_write_idx = (adc_write_idx + 1u) % N_SAMPLES;
     step_counter++;
 
-    if (step_counter >= FFT_STEP) {
+    // cứ đủ FFT_STEP mẫu mới thì đẩy cờ báo cho task xử lý
+    if (step_counter >= FFT_STEP)
+    {
         step_counter = 0u;
         data_ready = 1u;
     }
@@ -139,63 +124,77 @@ void CDD_LiDAR_Radar_Init(void)
     is_target_valid = 0u;
     fd_history_idx = 0u;
 
-    for (i = 0u; i < N_SAMPLES; i++) {
+    for (i = 0u; i < N_SAMPLES; i++)
+    {
         adc_ring[i] = 0u;
         float_adc[i] = 0.0f;
         fft_input[i] = 0.0f;
         fft_output[i] = 0.0f;
     }
 
-    for (i = 0u; i < (N_SAMPLES / 2u); i++) {
+    for (i = 0u; i < (N_SAMPLES / 2u); i++)
+    {
         magnitude[i] = 0.0f;
         bg_magnitude[i] = 0.0f;
     }
 
-    for (i = 0u; i < NUM_FRAME_SMOOTHING; i++) {
+    for (i = 0u; i < NUM_FRAME_SMOOTHING; i++)
+    {
         fd_history[i] = 0.0f;
     }
 
     arm_rfft_fast_init_f32(&fft_inst, N_SAMPLES);
-    CDD_RadarTimer_Init();
 }
 
 void CDD_LiDAR_Radar_Update(void)
 {
     uint8 rx_byte;
 
-    /* =========================================================
-     * 1. parse LiDAR
-     * ========================================================= */
+    // 1. khung truyền lidar tf-luna
     Uart_ClearOverrun_LPUART0();
 
-    while (Uart_ReadChar_LPUART0(&rx_byte) == 1u) {
-        if (lidar_index == 0u) {
-            if (rx_byte == LIDAR_HEADER) {
+    while (Uart_ReadChar_LPUART0(&rx_byte) == 1u)
+    {
+        if (lidar_index == 0u)
+        {
+            if (rx_byte == LIDAR_HEADER)
+            {
                 lidar_buffer[lidar_index++] = rx_byte;
             }
         }
-        else if (lidar_index == 1u) {
-            if (rx_byte == LIDAR_HEADER) {
+        else if (lidar_index == 1u)
+        {
+            if (rx_byte == LIDAR_HEADER)
+            {
                 lidar_buffer[lidar_index++] = rx_byte;
-            } else {
+            }
+            else
+            {
                 lidar_index = 0u;
-                if (rx_byte == LIDAR_HEADER) {
+                if (rx_byte == LIDAR_HEADER)
+                {
                     lidar_buffer[lidar_index++] = rx_byte;
                 }
             }
         }
-        else {
+        else
+        {
             lidar_buffer[lidar_index++] = rx_byte;
 
-            if (lidar_index == LIDAR_FRAME_SIZE) {
+            if (lidar_index == LIDAR_FRAME_SIZE)
+            {
                 uint16 checksum = 0u;
                 uint32 i;
 
-                for (i = 0u; i < 8u; i++) {
+                for (i = 0u; i < 8u; i++)
+                {
                     checksum += lidar_buffer[i];
                 }
 
-                if ((checksum & 0xFFu) == lidar_buffer[8]) {
+                // so sánh byte checksum
+                if ((checksum & 0xFFu) == lidar_buffer[8])
+                {
+                    // byte 2 và 3 chứa khoảng cách
                     CurrentSensorData.Lidar_Distance_cm =
                         (uint16)(lidar_buffer[2] | (lidar_buffer[3] << 8));
                     CurrentSensorData.Lidar_IsValid = TRUE;
@@ -206,10 +205,9 @@ void CDD_LiDAR_Radar_Update(void)
         }
     }
 
-    /* =========================================================
-     * 2. xử lý radar khi đủ block mới
-     * ========================================================= */
-    if (data_ready != 0u) {
+    // 2. chạy fft và xử lý tín hiệu radar
+    if (data_ready != 0u)
+    {
         uint32 i;
         uint32 snapshot_idx;
         float32_t mean_val = 0.0f;
@@ -222,8 +220,9 @@ void CDD_LiDAR_Radar_Update(void)
         float32_t noise_floor = 0.0f;
         float32_t fd_smoothed = 0.0f;
 
+        // giới hạn dải tần quan tâm
         uint32_t search_start = 8u;
-        uint32_t search_end   = 60u;
+        uint32_t search_end = 150u;
 
         uint32_t local_max_idx = 0u;
         uint32_t peak_idx = 0u;
@@ -233,35 +232,39 @@ void CDD_LiDAR_Radar_Update(void)
         data_ready = 0u;
         snapshot_idx = adc_write_idx;
 
-        /* copy mẫu từ ring buffer */
-        for (i = 0u; i < N_SAMPLES; i++) {
+        for (i = 0u; i < N_SAMPLES; i++)
+        {
             uint32_t read_idx = (snapshot_idx + i) % N_SAMPLES;
             float32_t val = (float32_t)adc_ring[read_idx];
 
             float_adc[i] = val;
 
-            if (val < min_adc) {
+            if (val < min_adc)
+            {
                 min_adc = val;
             }
-            if (val > max_adc) {
+            if (val > max_adc)
+            {
                 max_adc = val;
             }
         }
 
         p2p = max_adc - min_adc;
 
-        /* bỏ DC + Hanning */
         arm_mean_f32(float_adc, N_SAMPLES, &mean_val);
 
-        for (i = 0u; i < N_SAMPLES; i++) {
+        // trừ đi giá trị DC trung bình rồi nhân cửa sổ hanning
+        for (i = 0u; i < N_SAMPLES; i++)
+        {
             fft_input[i] = (float_adc[i] - mean_val) * Compute_Hanning(i, N_SAMPLES);
         }
 
-        /* FFT */
         arm_rfft_fast_f32(&fft_inst, fft_input, fft_output, 0);
 
+        // tính biên độ
         magnitude[0] = fabsf(fft_output[0]) / 512.0f;
-        for (i = 1u; i < (N_SAMPLES / 2u); i++) {
+        for (i = 1u; i < (N_SAMPLES / 2u); i++)
+        {
             float32_t real = fft_output[2u * i];
             float32_t imag = fft_output[2u * i + 1u];
             float32_t mag_raw;
@@ -270,101 +273,117 @@ void CDD_LiDAR_Radar_Update(void)
             magnitude[i] = mag_raw / 512.0f;
         }
 
-        /* lọc nhiễu điện đứng lâu: học nền rồi trừ khỏi phổ hiện tại */
-        for (i = search_start; i <= search_end; i++) {
+        // học nền và trừ khỏi phổ thực tế
+        for (i = search_start; i <= search_end; i++)
+        {
             bg_magnitude[i] =
                 (BG_ALPHA * magnitude[i]) +
                 ((1.0f - BG_ALPHA) * bg_magnitude[i]);
 
             magnitude[i] = magnitude[i] - bg_magnitude[i];
 
-            if (magnitude[i] < 0.0f) {
+            if (magnitude[i] < 0.0f)
+            {
                 magnitude[i] = 0.0f;
             }
         }
 
-        /* tìm peak Doppler */
-        arm_max_f32(&magnitude[search_start],
-                    (search_end - search_start + 1u),
-                    &max_mag,
-                    &local_max_idx);
-
+        // tìm index chứa đỉnh fd lớn nhất
+        arm_max_f32(&magnitude[search_start], (search_end - search_start + 1u), &max_mag, &local_max_idx);
         peak_idx = search_start + local_max_idx;
 
-        /* tính SNR */
-        for (i = search_start; i <= search_end; i++) {
-            if (abs((int)i - (int)peak_idx) > 3) {
+        // ước lượng nhiễu xung quanh đỉnh để tính snr
+        for (i = search_start; i <= search_end; i++)
+        {
+            if (abs((int)i - (int)peak_idx) > 3)
+            {
                 noise_sum += magnitude[i];
                 noise_count++;
             }
         }
 
         noise_floor = (noise_count > 0u) ? (noise_sum / (float32_t)noise_count) : 0.1f;
-        if (noise_floor < 0.1f) {
+        if (noise_floor < 0.1f)
+        {
             noise_floor = 0.1f;
         }
 
         snr = max_mag / noise_floor;
 
-        /* state machine detect */
+        // điều kiện xác nhận có đối tượng
         if ((p2p >= THRESHOLD_P2P) &&
             (max_mag > DETECT_MIN_MAG) &&
-            (snr > DETECT_MIN_SNR)) {
+            (snr > DETECT_MIN_SNR))
+        {
             is_hit = 1u;
-        } else {
+        }
+        else
+        {
             is_hit = 0u;
         }
 
-        if (is_hit != 0u) {
+        // lọc chống giật
+        if (is_hit != 0u)
+        {
             drop_count = 0u;
 
-            if (detect_count < DETECT_HIT_FRAMES) {
+            if (detect_count < DETECT_HIT_FRAMES)
+            {
                 detect_count++;
             }
 
-            if (detect_count >= DETECT_HIT_FRAMES) {
+            if (detect_count >= DETECT_HIT_FRAMES)
+            {
                 is_target_valid = 1u;
             }
-        } else {
+        }
+        else
+        {
             detect_count = 0u;
 
-            if (drop_count < RELEASE_DROP_FRAMES) {
+            if (drop_count < RELEASE_DROP_FRAMES)
+            {
                 drop_count++;
             }
 
-            if (drop_count >= RELEASE_DROP_FRAMES) {
+            if (drop_count >= RELEASE_DROP_FRAMES)
+            {
                 Reset_Detect_State();
             }
         }
 
-        /* xuất kết quả radar chỉ khi detect pass mới cho Fd khác 0 đi xuống pipeline */
-        if (is_target_valid != 0u) {
+        if (is_target_valid != 0u)
+        {
+            // mỗi bin tần số ứng với 2hz (Fs/N)
             float32_t fd_raw = (float32_t)peak_idx * 2.0f;
             float32_t sum_fd = 0.0f;
 
+            // trung bình động smoothing f_doppler
             fd_history[fd_history_idx] = fd_raw;
             fd_history_idx = (uint8)((fd_history_idx + 1u) % NUM_FRAME_SMOOTHING);
 
-            for (i = 0u; i < NUM_FRAME_SMOOTHING; i++) {
+            for (i = 0u; i < NUM_FRAME_SMOOTHING; i++)
+            {
                 sum_fd += fd_history[i];
             }
 
             fd_smoothed = sum_fd / (float32_t)NUM_FRAME_SMOOTHING;
 
-            /* đang gửi Fd (Hz) */
             CurrentSensorData.Radar_Fd_Hz = fd_smoothed;
-        } else {
-            /* không có mục tiêu hợp lệ thì ép Fd = 0 */
+        }
+        else
+        {
             CurrentSensorData.Radar_Fd_Hz = 0.0f;
         }
-        /* có block radar mới được xử lý xong */
+        
         CurrentSensorData.Radar_IsValid = TRUE;
     }
 }
 
-void CDD_LiDAR_Radar_GetData(CDD_HighSpeedData* DataPtr)
+void CDD_LiDAR_Radar_GetData(CDD_HighSpeedData *DataPtr)
 {
-    if (DataPtr != NULL_PTR) {
+    if (DataPtr != NULL_PTR)
+    {
         *DataPtr = CurrentSensorData;
 
         CurrentSensorData.Lidar_IsValid = FALSE;

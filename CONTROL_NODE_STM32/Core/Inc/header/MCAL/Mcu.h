@@ -13,7 +13,7 @@ typedef struct {
     uint32 Reserved;
 } Mcu_ConfigType;
 
-/* khởi tạo cấu hình cơ bản của mcu */
+/* khởi tạo cấu hình cơ bản của MCU */
 void Mcu_Init(const Mcu_ConfigType* ConfigPtr);
 
 /* khởi tạo các nguồn clock cần dùng */

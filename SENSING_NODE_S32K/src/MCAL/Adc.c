@@ -6,9 +6,9 @@
 #define ADC1 ((ADC_Type *)IP_ADC1_BASE)
 
 static const uint8 Adc_ChannelMap[ADC_GROUP_COUNT] = {
-    7u, /* ADC_GROUP_RADAR -> PTE2 / ADC1_SE7 */
-    1u, /* ADC_GROUP_RAIN  -> PTA1 / ADC0_SE1 */
-    2u  /* ADC_GROUP_POT   -> PTA6 / ADC0_SE2 */
+    7u, /* ADC_GROUP_RADAR - PTE2 */
+    1u, /* ADC_GROUP_RAIN - PTA1 */
+    2u  /* ADC_GROUP_POT - PTA6 */
 };
 
 void Adc_Init(const Adc_ConfigType* ConfigPtr)
@@ -42,17 +42,17 @@ void Adc_Init(const Adc_ConfigType* ConfigPtr)
 void Adc_StartGroupConversion(Adc_GroupType Group)
 {
     if (Group == ADC_GROUP_RADAR) {
-        /* bắt đầu chuyển đổi trên ADC1 */
+        /* ghi ID kênh vào thanh ghi SC1 để kích hoạt ADC1 */
         ADC1->SC1[0] = Adc_ChannelMap[Group];
     } else {
-        /* bắt đầu chuyển đổi trên ADC0 */
+        /* ghi ID kênh vào thanh ghi SC1 để kích hoạt ADC0 */
         ADC0->SC1[0] = Adc_ChannelMap[Group];
     }
 }
 
 Adc_StatusType Adc_GetGroupStatus(Adc_GroupType Group)
 {
-    /* kiểm tra cờ COCO: 1 = chuyển đổi xong */
+    /* kiểm tra cờ COCO (bit 7) */
     if (Group == ADC_GROUP_RADAR) {
         if ((ADC1->SC1[0] & (1u << 7)) != 0u) {
             return ADC_COMPLETED;
