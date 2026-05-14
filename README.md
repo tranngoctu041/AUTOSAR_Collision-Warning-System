@@ -14,8 +14,6 @@
 - [Phần cứng sử dụng](#-phần-cứng-sử-dụng)
 - [Cấu trúc thư mục](#-cấu-trúc-thư-mục)
 - [Hướng dẫn build & flash](#-hướng-dẫn-build--flash)
-- [Kết quả thực nghiệm](#-kết-quả-thực-nghiệm)
-- [Tác giả](#-tác-giả)
 
 ---
 
@@ -47,83 +45,62 @@ Hệ thống gồm hai node chính giao tiếp qua **CAN Bus** thông qua transc
 |----------|-------|-----------|-------------|
 | LiDAR | TF-Luna | UART | Khoảng cách phía trước |
 | Radar Doppler | CDM324 | ADC | Tần số Doppler → vận tốc |
-| Ultrasonic (Front) | HC-SR04 | GPIO/Timer | Khoảng cách ngắn |
-| Ultrasonic (Side) | B5K | ADC | Phát hiện điểm mù |
-| IMU (tham khảo) | MH-RD | ADC | Gia tốc/góc nghiêng |
+| Ultrasonic (Front) | HC-SR04 | GPIO/Timer | Hỗ trợ LiDAR cho khoảng cách trước |
+| Ultrasonic (Side) | HC-SR04 | GPIO/Timer | Phát hiện điểm mù 2 bên phía sau |
+| Biến trở | B5K | ADC | Giả lập vận tốc xe |
+| Cảm biến mưa | MH-RD | ADC | Trạng thái môi trước → hệ số tin cậy LiDAR (alpha) |
 
 ---
 
 ## Kiến trúc phần mềm AUTOSAR
 
-![AUTOSAR Software Architecture](docs/images/autosar_architecture.png)
+![AUTOSAR Software Architecture](images/autosar_architecture.png)
 
 Dự án tuân theo mô hình phân lớp của **AUTOSAR Classic Platform**:
 
 **Sensing Node (S32K144):**
 - `SWC_DataAcquisition` — Application Layer
-- `IoHwAb_Sensors`, `CanIf`, `Com`, `PduR` — BSW Layers
-- `McuDrivers`: Port, Dio, Gpt, Can, Adc, Uart, Icu
+- `IoHwAb_Sensors`, `CanIf`, `Com`, `PduR`, `Os`, `Port`, `Dio`, `Gpt`, `Can`, `Adc`, `Uart`, `Icu`, `Mcu` — BSW Layers
+- Runtime Environment (RTE)
 
 **Control Node (STM32F103):**
 - `SWC_SensorFusion`, `SWC_SafetyLogic`, `SWC_HmiReporting` — Application Layer
-- `IoHwAb_PtCom`, `CanIf`, `Com`, `PduR` — BSW Layers
-- Runtime Environment (RTE) đảm bảo giao tiếp giữa các SWC
+- `IoHwAb_PcCom`, `CanIf`, `Com`, `PduR`, `Os`, `Port`, `Mcu`, `Uart`, `Can` — BSW Layers
+- Runtime Environment (RTE)
 
 ---
 
 ## Software Components (SWC)
 
-![SWC Description](docs/images/swc_description.png)
-
-### `SWC_DataAcquisition` *(Sensing Node)*
-Đọc và chuẩn hóa dữ liệu thô từ tất cả cảm biến vật lý:
-- Giải mã UART/Timer để lấy khoảng cách từ LiDAR và siêu âm
-- Đọc ADC cảm biến mưa → hệ số tín cậy LiDAR
-- Tính tần số Doppler → vận tốc mô phỏng (SimSpeed)
-
-### `SWC_SensorFusion` *(Control Node)*
-Hợp nhất dữ liệu từ nhiều cảm biến thành một đầu ra tin cậy duy nhất:
-- Tính **D_final**: khoảng cách kết hợp có trọng số giữa LiDAR và siêu âm dựa trên hệ số α
-- Tính **V_rel**: vận tốc tương đối suy ra từ tần số Doppler
-- Tính **A_rel**: gia tốc tương đối theo thời gian thực
-
-### `SWC_SafetyLogic` *(Control Node)*
-Áp dụng thuật toán cảnh báo:
-- **FCW:** Tính TTC (Time-To-Collision), phân loại mức nguy hiểm (0, 1, 2)
-- **BSD:** So sánh khoảng cách siêu âm hai bên với ngưỡng an toàn
-
-### `SWC_HmiReporting` *(Control Node)*
-Hiển thị và cảnh báo người dùng:
-- Gửi dữ liệu qua UART lên PC để hiển thị HMI real-time
-- Điều khiển buzzer, LED cảnh báo theo mức FCW/BSD
+![SWC Description](images/swc_description.png)
 
 ---
 
 ## Giao diện HMI
 
-![HMI Dashboard](docs/images/hmi_dashboard.png)
+![HMI Dashboard](images/hmi_dashboard.png)
 
 Giao diện desktop được xây dựng bằng **Python (PyQt5 / Matplotlib)**, hiển thị real-time:
 
-- **Front View:** Mô phỏng góc nhìn phía trước với cảnh báo trực quan
-- **D_final / V_rel / A_rel:** Khoảng cách, vận tốc và gia tốc tương đối tổng hợp
-- **Raw Sensor Data:** Giá trị thô từng cảm biến (LiDAR, Ultrasonic, Radar, Alpha)
-- **Distance Trend / Velocity Trend:** Biểu đồ lịch sử theo thời gian thực
+- **Front View:** Mô phỏng góc nhìn phía trên với cảnh báo trực quan
+- **D_final / V_rel / A_rel:** Khoảng cách, vận tốc và gia tốc tương đối
+- **Raw Sensor Data:** Giá trị thô từng cảm biến
+- **Distance Trend / Velocity Trend:** Biểu đồ theo thời gian thực
 
 ---
 
 ## Phần cứng sử dụng
 
-| Thành phần | Model | Ghi chú |
-|-----------|-------|---------|
-| Sensing MCU | NXP S32K144EVB-Q100 | ARM Cortex-M4F, 112 MHz |
-| Control MCU | STM32F103C6T6 | ARM Cortex-M3, 72 MHz |
-| CAN Transceiver | MCP2551 | 1 Mbps |
-| LiDAR | Benewake TF-Luna | Range 0.2–8m, UART |
-| Radar | CDM324 | 24 GHz Doppler |
-| Ultrasonic | HC-SR04 | 2–400 cm |
-| Ultrasonic Side | B5K | ADC output |
-| Nguồn | DC-DC 12V → 5V | LM2596 |
+| Thành phần | Model |
+|-----------|-------|
+| Sensing MCU | NXP S32K144EVB-Q100 |
+| Control MCU | STM32F103C6T6 |
+| CAN Transceiver | MCP2551 |
+| LiDAR | Benewake TF-Luna |
+| Radar | CDM324 |
+| Ultrasonic | HC-SR04 |
+| Rain Sensor | MH-RD |
+| Biến trở | B5K |
 
 ---
 
@@ -133,25 +110,24 @@ Giao diện desktop được xây dựng bằng **Python (PyQt5 / Matplotlib)**,
 AUTOSAR_Collision-Warning-System/
 ├── SENSING_NODE_S32K/          # Firmware cho NXP S32K144 (Sensing Node)
 │   ├── src/
-│   │   ├── SWC_DataAcquisition.*
-│   │   ├── IoHwAb_Sensors.*
+│   │   ├── App
+│   │   ├── CDD
+│   │   ├── ECU Abs
 │   │   └── ...
 │   ├── include/
-│   └── Makefile
+│   └── Debug_FLASH
 │
 ├── CONTROL_NODE_STM32/         # Firmware cho STM32F103 (Control Node)
-│   ├── src/
-│   │   ├── SWC_SensorFusion.*
-│   │   ├── SWC_SafetyLogic.*
-│   │   ├── SWC_HmiReporting.*
-│   │   └── ...
-│   ├── include/
-│   └── Makefile
+│   ├── core/
+│   │   ├── Inc/
+│   │   ├── Src/
+│   │   ├── Startup
+│   ├── Drivers
+│   └── Debug
 │
 ├── HMI/                        # Giao diện PC (Python)
-│   ├── main.py
-│   ├── dashboard.py
-│   └── requirements.txt
+│   ├── hmi_dpg.py
+│   └── hmi_assets/
 │
 ├── References/                 # Tài liệu tham khảo, datasheet
 └── README.md
