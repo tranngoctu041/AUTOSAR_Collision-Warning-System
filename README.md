@@ -6,14 +6,14 @@
 
 ## Mục lục
 
-- [Giới thiệu](#-giới-thiệu)
-- [Kiến trúc hệ thống](#-kiến-trúc-hệ-thống)
-- [Kiến trúc phần mềm AUTOSAR](#-kiến-trúc-phần-mềm-autosar)
-- [Software Components (SWC)](#-software-components-swc)
-- [Giao diện HMI](#-giao-diện-hmi)
-- [Phần cứng sử dụng](#-phần-cứng-sử-dụng)
-- [Cấu trúc thư mục](#-cấu-trúc-thư-mục)
-- [Hướng dẫn build & flash](#-hướng-dẫn-build--flash)
+- #Giới thiệu
+- #Kiến trúc hệ thống
+- #Kiến trúc phần mềm AUTOSAR
+- #Software Components
+- #Giao diện HMI
+- #Phần cứng sử dụng
+- #Cấu trúc thư mục
+- #Hướng dẫn cài đặt
 
 ---
 
@@ -21,8 +21,8 @@
 
 Dự án xây dựng hệ thống **ADAS (Advanced Driver Assistance System)** cảnh báo va chạm sớm với các tính năng:
 
-- **FCW (Forward Collision Warning):** Cảnh báo nguy cơ va chạm phía trước dựa trên khoảng cách và vận tốc tương đối
-- **BSD (Blind Spot Detection):** Phát hiện vật thể trong điểm mù hai bên xe
+- **FCW (Forward Collision Warning):** Cảnh báo nguy cơ va chạm phía trước dựa trên ETTC - sử dụng khoảng cách, vận tốc và gia tốc tương đối
+- **BSD (Blind Spot Detection):** Cảnh báo khi khoảng cách bị thu hẹp hoặc có sự biến thiên đáng kể trong vùng quét
 - **Sensor Fusion:** Kết hợp dữ liệu từ LiDAR, Radar Doppler và Ultrasonic để tăng độ chính xác
 - **Real-time processing:** Xử lý tín hiệu và cảnh báo theo thời gian thực trên kiến trúc AUTOSAR
 
@@ -30,7 +30,7 @@ Dự án xây dựng hệ thống **ADAS (Advanced Driver Assistance System)** c
 
 ## Kiến trúc hệ thống
 
-![System Architecture](docs/images/system_architecture.png)
+![System Architecture](images/system_architecture.png)
 
 Hệ thống gồm hai node chính giao tiếp qua **CAN Bus** thông qua transceiver **MCP2551**:
 
@@ -60,7 +60,7 @@ Dự án tuân theo mô hình phân lớp của **AUTOSAR Classic Platform**:
 
 **Sensing Node (S32K144):**
 - `SWC_DataAcquisition` — Application Layer
-- `IoHwAb_Sensors`, `CanIf`, `Com`, `PduR`, `Os`, `Port`, `Dio`, `Gpt`, `Can`, `Adc`, `Uart`, `Icu`, `Mcu` — BSW Layers
+- `IoHwAb_Sensors`, `CDD_LiDAR_Radar`, `CanIf`, `Com`, `PduR`, `Os`, `Port`, `Dio`, `Gpt`, `Can`, `Adc`, `Uart`, `Icu`, `Mcu` — BSW Layers
 - Runtime Environment (RTE)
 
 **Control Node (STM32F103):**
@@ -80,7 +80,7 @@ Dự án tuân theo mô hình phân lớp của **AUTOSAR Classic Platform**:
 
 ![HMI Dashboard](images/hmi_dashboard.png)
 
-Giao diện desktop được xây dựng bằng **Python (PyQt5 / Matplotlib)**, hiển thị real-time:
+HMI được phát triển bằng ngôn ngữ Python 3.8+ với thư viện DearPyGUI, mang lại hiệu suất hiển thị vượt trội nhờ render bằng GPU:
 
 - **Front View:** Mô phỏng góc nhìn phía trên với cảnh báo trực quan
 - **D_final / V_rel / A_rel:** Khoảng cách, vận tốc và gia tốc tương đối
@@ -135,43 +135,112 @@ AUTOSAR_Collision-Warning-System/
 
 ---
 
-## Hướng dẫn build & flash
+## Hướng dẫn cài đặt
 
-### Yêu cầu công cụ
+### Phần mềm cần cài đặt
 
-- **S32 Design Studio** (cho S32K144)
-- **STM32CubeIDE** (cho STM32F103)
-- **Python 3.8+** với các thư viện: `pyserial`, `matplotlib`, `PyQt5`
+- [S32 Design Studio for S32 Platform](https://www.nxp.com/design/software/development-software/s32-design-studio-ide/s32-design-studio-for-s32-platform:S32DS-S32PLATFORM) + S32K1xx SDK/RTD
+- [STM32CubeIDE](https://www.st.com/en/development-tools/stm32cubeide.html)
+- Python 3.8+
 
-### Build firmware
+### Driver cần thiết
 
-```bash
-# Sensing Node (S32K144)
-cd SENSING_NODE_S32K
-make all
+- OpenSDA / J-Link Driver (cho S32K144EVB)
+- ST-Link Driver (cho STM32F103)
 
-# Control Node (STM32F103)
-cd CONTROL_NODE_STM32
-make all
+---
+
+### Cài đặt Sensing Node (S32K144)
+
+#### Bước 1 — Import project vào S32DS
+
+```
+File → Import → Existing Projects into Workspace
 ```
 
-### Flash firmware
+Chọn thư mục `SENSING_NODE_S32K`.
 
-```bash
-# S32K144 — dùng J-Link hoặc OpenSDA
-JLinkExe -device S32K144 -if SWD -speed 4000 -CommandFile flash_s32k.jlink
+#### Bước 2 — Tải CMSIS-DSP
 
-# STM32F103 — dùng ST-Link
-st-flash write CONTROL_NODE_STM32/build/output.bin 0x08000000
+Tải và giải nén về máy:
+- [CMSIS-DSP](https://github.com/ARM-software/CMSIS-DSP)
+- [CMSIS_5](https://github.com/ARM-software/CMSIS_5)
+
+#### Bước 3 — Thêm Include Path (Compiler)
+
 ```
+Project → Properties → C/C++ Build → Settings
+→ Standard S32DS C Compiler → Includes
+```
+
+Thêm 3 đường dẫn:
+
+```
+C:/CMSIS-DSP-main/Include
+C:/CMSIS-DSP-main/PrivateInclude
+C:/CMSIS_5-develop/CMSIS/Core/Include
+```
+
+#### Bước 4 — Thêm Include Path (Paths and Symbols)
+
+```
+Project → Properties → C/C++ General → Paths and Symbols → Includes
+```
+
+Chọn **GNU C**, thêm lại 3 đường dẫn tương tự Bước 3.
+
+#### Bước 5 — Thêm Preprocessor Symbols
+
+```
+Project → Properties → C/C++ Build → Settings
+→ Standard S32DS C Compiler → Preprocessor
+```
+
+Thêm 2 symbol:
+
+```
+ARM_MATH_CM4
+DISABLEFLOAT16
+```
+
+#### Bước 6 — Copy source files CMSIS-DSP
+
+Copy các file sau vào thư mục `src/` của project:
+
+```
+CommonTables.c
+FastMathFunctions.c
+StatisticsFunctions.c
+TransformFunctions.c
+```
+
+#### Bước 7 — Link thư viện toán học
+
+```
+Project → Properties → C/C++ Build → Settings
+→ Standard S32DS C Linker → Miscellaneous
+```
+
+Thêm linker flag:
+
+```
+-lm
+```
+
+---
+
+### Cài đặt Control Node (STM32F103)
+
+Import project `CONTROL_NODE_STM32` vào STM32CubeIDE, build trực tiếp (không cần cấu hình thêm).
+
+---
 
 ### Chạy HMI
 
 ```bash
 cd HMI
-pip install -r requirements.txt
-python main.py --port COMx --baud 115200   # Windows
-python main.py --port /dev/ttyUSBx         # Linux
+pip install dearpygui pyserial
+python main_hmi.py
 ```
 
 ---
