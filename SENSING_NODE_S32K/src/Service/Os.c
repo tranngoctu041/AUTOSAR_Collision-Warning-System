@@ -11,6 +11,7 @@ extern void Rte_Update_Inputs_Task100ms(void);
 extern void Swc_DataAcquisition_Task_30ms(void);
 extern void Swc_DataAcquisition_Task_50ms(void);
 extern void Swc_DataAcquisition_Task_100ms(void);
+extern void CDD_LiDAR_Radar_Update(void);
 
 /* ngắt tạo OS tick 1ms từ LPIT0 kênh 0 */
 void LPIT0_Ch0_IRQHandler(void) {
@@ -35,6 +36,9 @@ void Os_Scheduler(void) {
 
     if ((current_tick - last_run_30ms) >= 30u) {
         last_run_30ms = current_tick;
+
+        CDD_LiDAR_Radar_Update();
+        
         Rte_Update_Inputs_Task30ms();
         Swc_DataAcquisition_Task_30ms();
     }

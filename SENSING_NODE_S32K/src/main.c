@@ -32,7 +32,6 @@ int main(void) {
 
     while (1)
     {
-    	CDD_LiDAR_Radar_Update();
     	Os_Scheduler();
     }
 
